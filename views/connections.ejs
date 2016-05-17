@@ -23,7 +23,7 @@
                             <td><%= connection.database %></td>
                             <td><%= connection.driver %></td>
                             <td><%= connection.createdDate %></td>
-                            <td>
+                            <td class="table-cell table-cell-buttons">
                                 <form role="form" class="form-delete-connection" action="<%= baseUrl %>/connections/<%= connection._id %>" method="post">
                                     <input type="hidden" name="_method" value="delete" />
                                     <button class="btn btn-default" type="submit">Delete</button>

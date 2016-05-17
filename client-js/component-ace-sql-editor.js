@@ -17,6 +17,11 @@ module.exports = function (id) {
         editor.commands.addCommand(aceCommand);
     };
     
+    this.setSchemaTree = function (tree) {
+        console.log(tree);
+        //editor.commands.addCommand(aceCommand);
+    };
+
     this.getEditorText = function () {
         return editor.getValue();
     };

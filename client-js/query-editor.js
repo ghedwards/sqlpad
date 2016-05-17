@@ -2,17 +2,23 @@ var $ = require('jquery');
 var keymaster = require('keymaster');
 var ChartEditor = require('./component-chart-editor.js');
 var DbInfo = require('./component-db-info.js');
-var AceSqlEditor = require('./component-ace-sql-editor.js');
+//var AceSqlEditor = require('./component-ace-sql-editor.js');
+var CodeMirrorEditor = require('./component-codemirror-sql-editor.js');
 var DataGrid = require('./component-data-grid.js');
 
 var QueryEditor = function () {
     
     var chartEditor = new ChartEditor();
     var dbInfo = new DbInfo();
-    var aceSqlEditor = new AceSqlEditor("ace-editor");
+    //var aceSqlEditor = new AceSqlEditor("ace-editor");
+    var sqlEditor = new CodeMirrorEditor("codemirror-editor");
     var dataGrid = new DataGrid();
     var chartFormat = $('[format="chart"]').length > 0;
     var tableFormat = $('[format="table"]').length > 0;
+
+    dbInfo.onUpdateTree = function(tree){
+        sqlEditor.setSchemaTree(tree);
+    }; 
     
     function autoRefreshSeconds () {
         return $('#auto-refresh-seconds').val();
@@ -27,7 +33,7 @@ var QueryEditor = function () {
         $('#rowcount').html('');
         dataGrid.emptyDataGrid();
         var data = {
-            queryText: aceSqlEditor.getSelectedOrAllText(),
+            queryText: sqlEditor.getSelectedOrAllText(),
             connectionId: $('#connection').val(),
             cacheKey: $('#cache-key').val(),
             queryName: getQueryName()
@@ -89,7 +95,7 @@ var QueryEditor = function () {
         var $queryId = $('#query-id');
         var query = {
             name: getQueryName(),
-            queryText: aceSqlEditor.getEditorText(),
+            queryText: sqlEditor.getEditorText(),
             tags: getQueryTags(),
             connectionId: dbInfo.getConnectionId(),
             chartConfiguration: chartEditor.getChartConfiguration()
@@ -156,11 +162,13 @@ var QueryEditor = function () {
         type: "GET",
         url: baseUrl + "/queries/" + $queryId.val() + "?format=json"
     }).done(function (data) {
-        chartEditor.loadChartConfiguration(data.chartConfiguration);
+        if ( data && data.chartConfiguration ) {
+            chartEditor.loadChartConfiguration(data.chartConfiguration);
 
-        // if showing an embeddable chart, run the query immediately
-        if (chartFormat || tableFormat) {
-            runQuery();
+            // if showing an embeddable chart, run the query immediately
+            if (chartFormat || tableFormat) {
+                runQuery();
+            }
         }
     }).fail(function () {
         alert('Failed to get additional Query info');
@@ -219,7 +227,7 @@ var QueryEditor = function () {
 
 
 module.exports = function () {
-    if ($('#ace-editor').length || $('#panel-main[format="chart"]').length) {
+    if ($('#ace-editor').length || $('#codemirror-editor').length || $('#panel-main[format="chart"]').length) {
         new QueryEditor();
     }
 };

@@ -19,7 +19,7 @@
                                 <td><%= user.email %></td>
                                 <td><%= (user.admin ? "yes" : "" ) %></td>
                                 <td><%- (user.createdDate ? user.createdDate : "<em>not yet signed up</em>") %></td>
-                                <td>
+                                <td class="table-cell table-cell-buttons">
                                     <% if (user.admin) { %>
                                         <form role="form" action="<%= baseUrl %>/users/remove-admin/<%= user._id %>" method="post">
                                             <button class="btn btn-default" type="submit">Remove Admin</button>
@@ -30,7 +30,7 @@
                                         </form>
                                     <% } %>
                                 </td>
-                                <td>
+                                <td class="table-cell table-cell-buttons">
                                     <form role="form" class="form-delete-user" action="<%= baseUrl %>/users/<%= user._id %>" method="post">
                                         <input type="hidden" name="_method" value="delete" />
                                         <button class="btn btn-default" type="submit">Delete</button>

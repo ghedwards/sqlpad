@@ -20,7 +20,7 @@
                 <td><%= config.value %></td>
                 <td><%= config.createdDate %></td>
                 <td><%= config.modifiedDate %></td>
-                <td>
+                <td class="table-cell table-cell-buttons">
                     <form role="form" class="form-delete-config" action="<%= baseUrl %>/configs/<%= config._id %>" method="post">
                         <input type="hidden" name="_method" value="delete"/>
                         <button class="btn btn-default" type="submit">Delete</button>

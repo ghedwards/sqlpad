@@ -31,7 +31,7 @@
                                 <td><%= (query.createdBy && query.createdBy == user.email ? "Me" : (query.createdBy || "")) %></td>
                                 <!--<td><%= query.lastAccessedFromNow || "" %></td>-->
                                 <td><%= query.modifiedCalendar %></td>
-                                <td>
+                                <td class="table-cell table-cell-buttons">
                                     <form role="form" class="form-delete-query" action="<%= baseUrl %>/queries/<%= query._id %>" method="post">
                                         <input type="hidden" name="_method" value="delete" />
                                         <button class="btn btn-default btn-sm" type="submit">Delete</button>

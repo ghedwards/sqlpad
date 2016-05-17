@@ -14,12 +14,14 @@
 
 var $ = require('jquery');
 var ZeroClipboard = require('ZeroClipboard');
+var SchemaTree;
 ZeroClipboard.config({ bubbleEvents: false });
 
 var DbInfo = function () {
     this.bindRender();
     this.bindReloadButton();
     this.getSchema(false);
+    this.getSchemaTree(false);
 };
 
 module.exports = DbInfo;
@@ -42,6 +44,24 @@ DbInfo.prototype.bindReloadButton = function () {
     });
 };
 
+DbInfo.prototype.getSchemaTree = function (reload) {
+    var that = this;
+    var connectionId = $('#connection').val();
+    if (connectionId) {
+         var params = {
+            reload: typeof reload != 'undefined' ? reload : false
+        };
+        var jqxhrjson = $.post(baseUrl + "/schema-info/" + connectionId, params);
+        jqxhrjson.done(function (data) {
+           SchemaTree = data;
+           console.log(that.onUpdateTree);
+           if ( that.onUpdateTree ) {
+                that.onUpdateTree.apply(this,[data]);
+           }
+        });
+    }
+};
+
 DbInfo.prototype.getSchema = function (reload) {
     $('#panel-db-info').empty();
     $('#btn-reload-schema').hide();
@@ -50,8 +70,9 @@ DbInfo.prototype.getSchema = function (reload) {
         var params = {
             reload: typeof reload != 'undefined' ? reload : false
         };
-        var jqxhr = $.get(baseUrl + "/schema-info/" + connectionId, params);
-        jqxhr.done(function (data) {
+       
+        var jqxhrview = $.get(baseUrl + "/schema-info/" + connectionId, params);
+        jqxhrview.done(function (data) {
             $('#btn-reload-schema').show();
             $('#panel-db-info').html(data);
             var schemaInfo = $('.schema-info');
@@ -99,7 +120,7 @@ DbInfo.prototype.getSchema = function (reload) {
             }
             
         });
-        jqxhr.fail(function () {
+        jqxhrview.fail(function () {
             $('<ul class="schema-info"><li>Problem getting Schema Info</li></ul>').appendTo('#panel-db-info');
         });
     }
