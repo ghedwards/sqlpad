@@ -1,7 +1,7 @@
 <ul class="schema-info <%= (showSchemaCopyButton ? "show-schema-copy-button" : "") %>">
     <% for (var tableType in tree) { %>
-        <li>
-            <a href="#"><%= tableType %></a>
+        <li class="open">
+            <a href="#" class="schema-info-<%= tableType.toLowerCase() %>"><%= tableType %></a>
             <ul>
                 <% for (var schema in tree[tableType]) { %>
                     <li>

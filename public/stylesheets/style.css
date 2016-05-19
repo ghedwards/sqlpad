@@ -138,7 +138,7 @@ a {
 }
 
 #panel-db-info {
-    padding: 10px;
+    padding: 0;
 }
 
 .panel-editor {
@@ -255,7 +255,112 @@ textarea#codemirror-editor {
     white-space: nowrap;
 }
 
+.schema-info-schema:before, 
+.schema-info-table:before, 
+.schema-info-tables:before, 
+.schema-info-views:before, 
+.schema-info-database:before,
+.schema-info-schema:after, 
+.schema-info-table:after, 
+.schema-info-tables:after, 
+.schema-info-views:after, 
+.schema-info-database:after {
+    display: inline-block;
+    font-family: FontAwesome;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    width: 26px;
+    margin-right: 5px;
+    height: auto;
+    line-height: normal;
+    text-align: right;
+    vertical-align: baseline;
+    background-image: none;
+    background-position: 0 0;
+    background-repeat: repeat;
+    margin-top: 0;
+    text-decoration: inherit;
+    display: inline-block;
+    speak: none;
+}
 
+.schema-info-database:after, 
+.schema-info-schema:after, 
+.schema-info-table:after, 
+.schema-info-tables:after,
+.schema-info-views:after {
+  position: absolute;
+  left: -15px;
+  top: 5px;
+  font-size: 12px;
+  content: "\f0fe";
+}
+
+.schema-info-table:before, .schema-info-tables:before {
+    content: "\f0ce";
+}
+
+.schema-info-views:before {
+    content: "\f1e5";
+    font-size: 13px;
+}
+
+.schema-info-schema:before {
+    content: "\f0e8";
+}
+
+.open > .schema-info-database:after, 
+.open > .schema-info-schema:after, 
+.open > .schema-info-table:after, 
+.open > .schema-info-tables:after,
+.open > .schema-info-views:after {
+  content: "\f146";
+}
+
+.schema-info-database:before {
+  content: "\f1c0";  
+}
+
+
+.schema-info-schema, .schema-info-table {
+
+}
+
+/* schema-info copy button */
+.schema-info-database, 
+.schema-info-schema, 
+.schema-info-table, 
+.schema-info-tables, 
+.schema-info-views, 
+.schema-info-column,
+.schema-info-database:hover, 
+.schema-info-schema:hover, 
+.schema-info-table:hover, 
+.schema-info-tables:hover, 
+.schema-info-views:hover, 
+.schema-info-column:hover,
+.schema-info-database:focus, 
+.schema-info-schema:focus, 
+.schema-info-table:focus, 
+.schema-info-tables:focus, 
+.schema-info-views:focus, 
+.schema-info-column:focus,
+.schema-info-database:active, 
+.schema-info-schema:active, 
+.schema-info-table:active, 
+.schema-info-tables:active, 
+.schema-info-views:active, 
+.schema-info-column:active {
+    min-width: 210px;
+    display: inline-block;
+    padding: 4px;
+    position: relative;
+    text-decoration: none;
+    color: #585858;
+}
 
 .sidebar {
     padding: 12px;
@@ -303,12 +408,6 @@ textarea#codemirror-editor {
 
 .data-type {
     color: #999;
-}
-
-/* schema-info copy button */
-.schema-info-schema, .schema-info-table, .schema-info-column {
-    min-width: 210px;
-    display: inline-block;
 }
 
 .table .table-cell-buttons {

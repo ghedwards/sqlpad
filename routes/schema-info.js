@@ -55,6 +55,13 @@ module.exports = function (app, router) {
                                       + "WHERE tables.schema_name not in ('information_schema') "
                                       + "and columns.schema_name = tables.schema_name "
                                       + "and columns.table_name = tables.table_name";
+                } else if (connection.driver == "mssql") {
+                    tableAndColumnSql = "SELECT (CASE t.table_type WHEN 'BASE TABLE' THEN 'Tables' WHEN 'VIEW' THEN 'Views' ELSE t.table_type END) AS table_type, "
+                    + " t.table_schema, t.table_name, c.column_name, c.data_type, c.is_nullable, c.character_maximum_length "
+                    + " FROM INFORMATION_SCHEMA.tables t "
+                    + " JOIN INFORMATION_SCHEMA.columns c ON t.table_schema = c.table_schema AND t.table_name = c.table_name "
+                    + " WHERE t.table_schema NOT IN ('information_schema', 'pg_catalog') "
+                    + " ORDER BY t.table_type, t.table_schema, t.table_name, c.ordinal_position";
                 } else {
                     tableAndColumnSql = "SELECT (CASE t.table_type WHEN 'BASE TABLE' THEN 'Tables' WHEN 'VIEW' THEN 'Views' ELSE t.table_type END) AS table_type, "
                     + " t.table_schema, t.table_name, c.column_name, c.data_type, c.is_nullable "

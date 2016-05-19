@@ -858,7 +858,6 @@ DbInfo.prototype.getSchemaTree = function (reload) {
         var jqxhrjson = $.post(baseUrl + "/schema-info/" + connectionId, params);
         jqxhrjson.done(function (data) {
            SchemaTree = data;
-           console.log(that.onUpdateTree);
            if ( that.onUpdateTree ) {
                 that.onUpdateTree.apply(this,[data]);
            }
@@ -882,7 +881,7 @@ DbInfo.prototype.getSchema = function (reload) {
             var schemaInfo = $('.schema-info');
             schemaInfo.find('li').click(function (e) {
                 e.stopPropagation();
-                $(this).children('ul').toggleClass('hidden');
+                $(this).toggleClass("open").children('ul').toggleClass('hidden');
             });
             
             // table/column copy button
