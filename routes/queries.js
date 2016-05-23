@@ -13,7 +13,7 @@ module.exports = function (app, router) {
 
     function getQueryFilterData(req, res, next) {
         db.connections.find({}, function (err, connections) {
-            var connectionsById = _.indexBy(connections, '_id');
+            var connectionsById = _.indexBy ? _.indexBy(connections, '_id') : _.keyBy(connections, '_id');
             db.queries.find({}, function (err, queries) {
                 var tags = _.uniq(_.flatten(_.map(queries, 'tags'))).sort();
                 var createdBys = _.uniq(_.map(queries, 'createdBy')).sort();

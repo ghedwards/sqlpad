@@ -15,8 +15,8 @@ module.exports = function (app, router) {
     function getConnection (req,callback,showSchemaCopyButton) {
         db.connections.findOne({_id: req.params.connectionId}, function (err, conn) {
             if (!err && conn) {
-                connection = conn;
-                cacheKey = "schemaCache:" + req.params.connectionId;
+                var connection = conn;
+                var cacheKey = "schemaCache:" + req.params.connectionId;
                 getCache(req,callback,showSchemaCopyButton,cacheKey,connection,false);
             } else {
                 res.render('schema-info', {tree: {}, showSchemaCopyButton: showSchemaCopyButton});

@@ -7,7 +7,11 @@ var path = require('path');
 var updateNotifier = require('update-notifier');
 var packageJson = require('./package.json');
 var app = express();
-
+var reactEngine = require('react-engine');
+var browserify = require('browserify');
+var watchify = require('watchify');
+var fs = require('fs');
+var engine;
 
 /*  Automatic notifier thing that an update is available
 ============================================================================= */
@@ -60,9 +64,17 @@ var errorhandler = require('errorhandler');
 
 app.locals.title = 'SqlPad';
 app.locals.version = packageJson.version;
-app.set('packageJson', packageJson);
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
+
+if ( config.engine === 'react' ) {
+    engine = reactEngine.server.create({});
+    app.engine('.jsx', engine);
+    app.set('view', reactEngine.expressView);
+    app.set('view engine', 'jsx');
+    app.set('packageJson', packageJson);
+    app.set('views', path.join(__dirname, 'views'));
+} else {
+    app.set('view engine', 'ejs');    
+}
 
 if (process.env.NODE_ENV === 'development') {
   // only use in development
@@ -184,6 +196,24 @@ app.use(config.baseUrl, router);
 
 /*	Start the Server
 ============================================================================= */
+var b = browserify({
+    entries: [
+        './client-js/main.js'],
+
+    cache: {},
+    packageCache: {},
+    plugin: [watchify],
+    transform: ["browserify-shim"]
+});
+
+b.on('update', function(){
+    
+    b.bundle().pipe(fs.createWriteStream('./public/javascripts/browserified.js'));
+
+});
+
+b.bundle().pipe(fs.createWriteStream('./public/javascripts/browserified.js'));
+
 http.createServer(app).listen(app.get('port'), app.get('ip'), function(){
-	console.log('\nWelcome to ' + app.locals.title + '!. Visit http://'+(app.get('ip') == '0.0.0.0' ? 'localhost' : app.get('ip')) + ':' + app.get('port') + app.get('baseUrl') + ' to get started');
+    console.log('\nWelcome to ' + app.locals.title + '!. Visit http://'+(app.get('ip') == '0.0.0.0' ? 'localhost' : app.get('ip')) + ':' + app.get('port') + app.get('baseUrl') + ' to get started');
 });
