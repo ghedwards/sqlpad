@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function onLoad() {
   ReactEngineClient.boot(options);
 });
 
-},{"../routes/routes.jsx":534,"../views/queries-table.jsx":541,"react-engine/lib/client":268}],2:[function(require,module,exports){
+},{"../routes/routes.jsx":534,"../views/queries-table.jsx":542,"react-engine/lib/client":268}],2:[function(require,module,exports){
 module.exports = { "default": require("core-js/library/fn/object/assign"), __esModule: true };
 },{"core-js/library/fn/object/assign":13}],3:[function(require,module,exports){
 module.exports = { "default": require("core-js/library/fn/object/create"), __esModule: true };
@@ -48068,6 +48068,10 @@ var _react2 = _interopRequireDefault(_react);
 
 var _reactRouter = require('react-router');
 
+var _home = require('../views/home.jsx');
+
+var _home2 = _interopRequireDefault(_home);
+
 var _layout = require('../views/layout.jsx');
 
 var _layout2 = _interopRequireDefault(_layout);
@@ -48124,6 +48128,7 @@ module.exports = _react2.default.createElement(
   _react2.default.createElement(
     _reactRouter.Route,
     { path: '/', component: _layout2.default },
+    _react2.default.createElement(_reactRouter.IndexRoute, { component: _home2.default }),
     _react2.default.createElement(_reactRouter.Route, { path: '/signin', component: _signin2.default }),
     _react2.default.createElement(_reactRouter.Route, { path: '/signout', component: _signin2.default }),
     _react2.default.createElement(_reactRouter.Route, { path: '/query*', component: _query2.default }),
@@ -48138,7 +48143,7 @@ module.exports = _react2.default.createElement(
   )
 );
 
-},{"../views/404.jsx":535,"../views/config.jsx":536,"../views/configs.jsx":537,"../views/connection.jsx":538,"../views/connections.jsx":539,"../views/layout.jsx":540,"../views/queries-table.jsx":541,"../views/queries.jsx":542,"../views/query.jsx":543,"../views/signin.jsx":544,"../views/signup.jsx":545,"../views/users.jsx":546,"react":528,"react-router":357}],535:[function(require,module,exports){
+},{"../views/404.jsx":535,"../views/config.jsx":536,"../views/configs.jsx":537,"../views/connection.jsx":538,"../views/connections.jsx":539,"../views/home.jsx":540,"../views/layout.jsx":541,"../views/queries-table.jsx":542,"../views/queries.jsx":543,"../views/query.jsx":544,"../views/signin.jsx":545,"../views/signup.jsx":546,"../views/users.jsx":547,"react":528,"react-router":357}],535:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -48188,7 +48193,7 @@ module.exports = React.createClass({
                         { className: 'form-group' },
                         React.createElement(
                             'label',
-                            { className: 'control-label', 'for': 'key' },
+                            { className: 'control-label', htmlFor: 'key' },
                             'Key'
                         ),
                         React.createElement('input', { id: 'key', name: 'key', defaultValue: this.props.config ? this.props.config.key : "", type: 'text', placeholder: '',
@@ -48199,7 +48204,7 @@ module.exports = React.createClass({
                         { className: 'form-group' },
                         React.createElement(
                             'label',
-                            { className: 'control-label', 'for': 'value' },
+                            { className: 'control-label', htmlFor: 'value' },
                             'Value'
                         ),
                         React.createElement('input', { id: 'value', name: 'value', defaultValue: this.props.config ? this.props.config.value : "", type: 'text', placeholder: '',
@@ -48209,7 +48214,7 @@ module.exports = React.createClass({
                     React.createElement(
                         'div',
                         { className: 'form-group' },
-                        React.createElement('label', { className: 'control-label', 'for': 'btnTest' }),
+                        React.createElement('label', { className: 'control-label', htmlFor: 'btnTest' }),
                         React.createElement(
                             'div',
                             { className: '' },
@@ -48347,188 +48352,7 @@ module.exports = React.createClass({
 
   render: function render() {
 
-    return React.createElement(
-      'div',
-      { className: 'col-sm-12 col-md-12 main' },
-      React.createElement(
-        'form',
-        { id: 'connection-form', role: 'form', className: 'col-md-6 col-md-offset-3', action: '/connections/' + (this.props.connection._id || "new"), method: 'post' },
-        React.createElement(
-          'fieldset',
-          null,
-          React.createElement(
-            'legend',
-            null,
-            'Connection'
-          ),
-          React.createElement(
-            'div',
-            { className: 'form-group' },
-            React.createElement(
-              'label',
-              { className: 'control-label', 'for': 'name' },
-              'Friendly Connection Name'
-            ),
-            React.createElement('input', { id: 'name', name: 'name', defaultValue: this.props.connection.name || '', type: 'text', placeholder: '', className: 'form-control input-md' })
-          ),
-          React.createElement(
-            'div',
-            { className: 'form-group' },
-            React.createElement(
-              'label',
-              { className: ' control-label', 'for': 'driver' },
-              'Database Driver'
-            ),
-            React.createElement(
-              'div',
-              { className: '' },
-              React.createElement(
-                'select',
-                { id: 'driver', name: 'driver', className: 'form-control', defaultValue: this.props.connection.driver },
-                React.createElement(
-                  'option',
-                  { value: 'mysql' },
-                  'MySQL'
-                ),
-                React.createElement(
-                  'option',
-                  { value: 'postgres' },
-                  'Postgres'
-                ),
-                React.createElement(
-                  'option',
-                  { value: 'sqlserver' },
-                  'SQL Server'
-                ),
-                React.createElement(
-                  'option',
-                  { value: 'vertica' },
-                  'Vertica'
-                ),
-                React.createElement(
-                  'option',
-                  { value: 'crate' },
-                  'Crate'
-                )
-              )
-            )
-          ),
-          React.createElement(
-            'div',
-            { className: 'form-group' },
-            React.createElement(
-              'label',
-              { className: ' control-label', 'for': 'host' },
-              'Host/Server/IP Address'
-            ),
-            React.createElement(
-              'div',
-              { className: '' },
-              React.createElement('input', { id: 'host', name: 'host', defaultValue: this.props.connection.host || '', type: 'text', className: 'form-control input-md', required: '' })
-            )
-          ),
-          React.createElement(
-            'div',
-            { className: 'form-group' },
-            React.createElement(
-              'label',
-              { className: ' control-label', 'for': 'port' },
-              'Port (optional)'
-            ),
-            React.createElement(
-              'div',
-              { className: '' },
-              React.createElement('input', { id: 'port', name: 'port', defaultValue: this.props.connection.port || '', type: 'text', className: 'form-control input-md' })
-            )
-          ),
-          React.createElement(
-            'div',
-            { className: 'form-group driver-specific mysql postgres sqlserver vertica' },
-            React.createElement(
-              'label',
-              { className: ' control-label', 'for': 'database' },
-              'Database Name'
-            ),
-            React.createElement(
-              'div',
-              { className: '' },
-              React.createElement('input', { id: 'database', name: 'database', defaultValue: this.props.connection.database || '', type: 'text', className: 'form-control input-md', required: '' })
-            )
-          ),
-          React.createElement(
-            'div',
-            { className: 'form-group driver-specific mysql postgres sqlserver vertica' },
-            React.createElement(
-              'label',
-              { className: ' control-label', 'for': 'username' },
-              'Database Username'
-            ),
-            React.createElement('input', { id: 'username', name: 'username', defaultValue: this.props.connection.username || '', type: 'text', className: 'form-control input-md' })
-          ),
-          React.createElement(
-            'div',
-            { className: 'form-group driver-specific mysql postgres sqlserver vertica' },
-            React.createElement(
-              'label',
-              { className: ' control-label', 'for': 'password' },
-              'Password'
-            ),
-            React.createElement('input', { id: 'password', name: 'password', defaultValue: this.props.connection.password || '', type: 'password', className: 'form-control input-md' })
-          ),
-          React.createElement(
-            'div',
-            { className: 'checkbox driver-specific sqlserver' },
-            React.createElement(
-              'label',
-              null,
-              React.createElement('input', { name: 'sqlserverEncrypt', checked: this.props.connection.sqlserverEncrypt ? "checked" : "", type: 'checkbox' }),
-              ' Encrypt (necessary for Azure)'
-            )
-          ),
-          React.createElement(
-            'div',
-            { className: 'checkbox driver-specific postgres' },
-            React.createElement(
-              'label',
-              null,
-              React.createElement('input', { name: 'postgresSsl', checked: this.props.connection.postgresSsl ? "checked" : "", type: 'checkbox' }),
-              ' Use SSL'
-            )
-          ),
-          React.createElement(
-            'div',
-            { className: 'checkbox driver-specific mysql' },
-            React.createElement(
-              'label',
-              null,
-              React.createElement('input', { name: 'mysqlInsecureAuth', checked: this.props.connection.mysqlInsecureAuth ? "checked" : "", type: 'checkbox' }),
-              ' Use old/insecure pre 4.1 Auth System'
-            )
-          ),
-          this.props.connection._id ? React.createElement('input', { type: 'hidden', name: '_method', value: 'put' }) : "",
-          React.createElement(
-            'div',
-            { className: 'form-group' },
-            React.createElement('label', { className: ' control-label', 'for': 'btnTest' }),
-            React.createElement(
-              'div',
-              { className: '' },
-              React.createElement(
-                'button',
-                { id: 'btn-Save-connection', name: 'btnSave', className: 'btn btn-primary', type: 'submit' },
-                'Save'
-              ),
-              React.createElement(
-                'button',
-                { id: 'btn-test-connection', name: 'btnTest', className: 'btn btn-inverse', type: 'submit' },
-                'Test Connection'
-              ),
-              React.createElement('span', { id: 'test-connection-result', className: 'label label-default' })
-            )
-          )
-        )
-      )
-    );
+    return React.createElement('div', { className: 'col-sm-12 col-md-12 main' }, React.createElement('form', { id: 'connection-form', role: 'form', className: 'col-md-6 col-md-offset-3', action: '/connections/' + (this.props.connection._id || "new"), method: 'post' }, React.createElement('fieldset', null, React.createElement('legend', null, 'Connection'), React.createElement('div', { className: 'form-group' }, React.createElement('label', { className: 'control-label', htmlFor: 'name' }, 'Friendly Connection Name'), React.createElement('input', { id: 'name', name: 'name', defaultValue: this.props.connection.name || '', type: 'text', placeholder: '', className: 'form-control input-md' })), React.createElement('div', { className: 'form-group' }, React.createElement('label', { className: ' control-label', htmlFor: 'driver' }, 'Database Driver'), React.createElement('div', { className: '' }, React.createElement('select', { id: 'driver', name: 'driver', className: 'form-control', defaultValue: this.props.connection.driver }, React.createElement('option', { value: 'mysql' }, 'MySQL'), React.createElement('option', { value: 'postgres' }, 'Postgres'), React.createElement('option', { value: 'sqlserver' }, 'SQL Server'), React.createElement('option', { value: 'vertica' }, 'Vertica'), React.createElement('option', { value: 'crate' }, 'Crate')))), React.createElement('div', { className: 'form-group' }, React.createElement('label', { className: ' control-label', htmlFor: 'host' }, 'Host/Server/IP Address'), React.createElement('div', { className: '' }, React.createElement('input', { id: 'host', name: 'host', defaultValue: this.props.connection.host || '', type: 'text', className: 'form-control input-md', required: '' }))), React.createElement('div', { className: 'form-group' }, React.createElement('label', { className: ' control-label', htmlFor: 'port' }, 'Port (optional)'), React.createElement('div', { className: '' }, React.createElement('input', { id: 'port', name: 'port', defaultValue: this.props.connection.port || '', type: 'text', className: 'form-control input-md' }))), React.createElement('div', { className: 'form-group driver-specific mysql postgres sqlserver vertica' }, React.createElement('label', { className: ' control-label', htmlFor: 'database' }, 'Database Name'), React.createElement('div', { className: '' }, React.createElement('input', { id: 'database', name: 'database', defaultValue: this.props.connection.database || '', type: 'text', className: 'form-control input-md', required: '' }))), React.createElement('div', { className: 'form-group driver-specific mysql postgres sqlserver vertica' }, React.createElement('label', { className: ' control-label', htmlFor: 'username' }, 'Database Username'), React.createElement('input', { id: 'username', name: 'username', defaultValue: this.props.connection.username || '', type: 'text', className: 'form-control input-md' })), React.createElement('div', { className: 'form-group driver-specific mysql postgres sqlserver vertica' }, React.createElement('label', { className: ' control-label', htmlFor: 'password' }, 'Password'), React.createElement('input', { id: 'password', name: 'password', defaultValue: this.props.connection.password || '', type: 'password', className: 'form-control input-md' })), React.createElement('div', { className: 'checkbox driver-specific sqlserver' }, React.createElement('label', null, React.createElement('input', { name: 'sqlserverEncrypt', checked: this.props.connection.sqlserverEncrypt ? "checked" : "", type: 'checkbox' }), ' Encrypt (necessary for Azure)')), React.createElement('div', { className: 'checkbox driver-specific postgres' }, React.createElement('label', null, React.createElement('input', { name: 'postgresSsl', checked: this.props.connection.postgresSsl ? "checked" : "", type: 'checkbox' }), ' Use SSL')), React.createElement('div', { className: 'checkbox driver-specific mysql' }, React.createElement('label', null, React.createElement('input', { name: 'mysqlInsecureAuth', checked: this.props.connection.mysqlInsecureAuth ? "checked" : "", type: 'checkbox' }), ' Use old/insecure pre 4.1 Auth System')), this.props.connection._id ? React.createElement('input', { type: 'hidden', name: '_method', value: 'put' }) : "", React.createElement('div', { className: 'form-group' }, React.createElement('label', { className: ' control-label', htmlFor: 'btnTest' }), React.createElement('div', { className: '' }, React.createElement('button', { id: 'btn-Save-connection', name: 'btnSave', className: 'btn btn-primary', type: 'submit' }, 'Save'), React.createElement('button', { id: 'btn-test-connection', name: 'btnTest', className: 'btn btn-inverse', type: 'submit' }, 'Test Connection'), React.createElement('span', { id: 'test-connection-result', className: 'label label-default' }))))));
   }
 
 });
@@ -48665,6 +48489,27 @@ module.exports = React.createClass({
     } });
 
 },{"moment":160,"react":528}],540:[function(require,module,exports){
+'use strict';
+
+var React = require('react');
+
+module.exports = React.createClass({
+  displayName: 'Home',
+
+  render: function render() {
+    return React.createElement(
+      'div',
+      null,
+      React.createElement(
+        'h2',
+        null,
+        'Welcome to SqlPad'
+      )
+    );
+  }
+});
+
+},{"react":528}],541:[function(require,module,exports){
 
 'use strict';
 
@@ -48798,7 +48643,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"react":528,"react-bootstrap":255}],541:[function(require,module,exports){
+},{"react":528,"react-bootstrap":255}],542:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -48869,13 +48714,13 @@ module.exports = React.createClass({
                             React.createElement(
                                 'td',
                                 null,
-                                query.tags.map(function (tag) {
+                                query.tags ? query.tags.map(function (tag) {
                                     React.createElement(
                                         'a',
                                         { key: tag, className: 'tag label label-info', href: '/queries?tag=' + tag },
                                         tag
                                     );
-                                })
+                                }) : ""
                             ),
                             React.createElement(
                                 'td',
@@ -48908,7 +48753,7 @@ module.exports = React.createClass({
         );
     } });
 
-},{"react":528}],542:[function(require,module,exports){
+},{"react":528}],543:[function(require,module,exports){
 'use strict';
 
 var _queriesTable = require('../views/queries-table.jsx');
@@ -48926,7 +48771,7 @@ module.exports = React.createClass({
 
         return React.createElement(
             'div',
-            { className: 'col-sm-12  col-md-12 main' },
+            { className: 'col-sm-12 col-md-12 main' },
             React.createElement(
                 'form',
                 { id: 'query-filter-form' },
@@ -48944,7 +48789,7 @@ module.exports = React.createClass({
                                 { className: 'form-group' },
                                 React.createElement(
                                     'label',
-                                    { className: 'control-label', 'for': 'search' },
+                                    { className: 'control-label', htmlFor: 'search' },
                                     'Search (Name, Query)'
                                 ),
                                 React.createElement('input', { id: 'query-filter-search', name: 'search', className: 'form-control', type: 'text' })
@@ -48958,7 +48803,7 @@ module.exports = React.createClass({
                                 { className: 'form-group' },
                                 React.createElement(
                                     'label',
-                                    { className: 'control-label', 'for': 'tag' },
+                                    { className: 'control-label', htmlFor: 'tag' },
                                     'Tag'
                                 ),
                                 React.createElement(
@@ -48987,7 +48832,7 @@ module.exports = React.createClass({
                                 { className: 'form-group' },
                                 React.createElement(
                                     'label',
-                                    { className: 'control-label', 'for': 'connection' },
+                                    { className: 'control-label', htmlFor: 'connection' },
                                     'Connection'
                                 ),
                                 React.createElement(
@@ -49016,7 +48861,7 @@ module.exports = React.createClass({
                                 { className: 'form-group' },
                                 React.createElement(
                                     'label',
-                                    { className: 'control-label', 'for': 'createdBy' },
+                                    { className: 'control-label', htmlFor: 'createdBy' },
                                     'Created By'
                                 ),
                                 React.createElement(
@@ -49045,7 +48890,7 @@ module.exports = React.createClass({
                                 { className: 'form-group' },
                                 React.createElement(
                                     'label',
-                                    { className: 'control-label', 'for': 'sortBy' },
+                                    { className: 'control-label', htmlFor: 'sortBy' },
                                     'Sort By'
                                 ),
                                 React.createElement(
@@ -49077,7 +48922,7 @@ module.exports = React.createClass({
     }
 });
 
-},{"../views/queries-table.jsx":541,"react":528}],543:[function(require,module,exports){
+},{"../views/queries-table.jsx":542,"react":528}],544:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -49090,23 +48935,278 @@ module.exports = React.createClass({
     render: function render() {
         var _this = this;
 
-        return React.createElement('div', { className: 'container-fluid' }, React.createElement(Nav, { bsStyle: 'pills', activeKey: 1, className: 'query-editor-nav-pills', style: { float: "left" } }, React.createElement(NavItem, { eventKey: 1 }, 'SQL'), React.createElement(NavItem, { eventKey: 2 }, 'Vis')), React.createElement('form', { className: 'navbar-form navbar-left navbar-left-border' }, React.createElement('button', { type: 'button', id: 'btn-save', className: 'btn btn-default' }, React.createElement('span', { className: 'shortcut-letter' }, 'S'), 'ave'), React.createElement('div', { className: 'form-group', style: { marginLeft: "20px" } }, React.createElement('input', { id: 'header-query-name', name: 'header-query-name', className: 'input-query-name form-control',
-            defaultValue: this.props.query ? this.props.query.name : "", type: 'text', placeholder: 'Query Name' })), React.createElement('div', { className: 'form-group', style: { marginLeft: "20px" } }, React.createElement('label', { className: 'control-label', 'for': 'tags' }, 'Tags')), React.createElement('div', { className: 'form-group' }, React.createElement('input', { id: 'tags', name: 'tags', className: 'form-control', 'data-role': 'tagsinput',
-            defaultValue: this.props.query ? this.props.query.tags : "", type: 'text' })), React.createElement('input', { type: 'hidden', id: 'cache-key', defaultValue: this.props.cacheKey }), React.createElement('input', { type: 'hidden', id: 'query-id', name: 'query-id', defaultValue: this.props.query ? this.props.query._id : "" || 'new' }), React.createElement('span', { id: 'btn-save-result', className: 'label label-info' })), React.createElement('div', { id: 'panel-main' }, React.createElement('div', { className: 'tab-content' }, React.createElement('div', { className: 'tab-pane active', id: 'tab-content-sql' }, React.createElement('div', { className: 'sidebar' }, React.createElement('form', null, React.createElement('div', { className: 'form-group' }, React.createElement('label', { className: 'control-label', 'for': 'connection' }, 'Connection'), React.createElement('select', { id: 'connection', name: 'connection', className: 'form-control input-sm', defaultValue: this.props.query ? this.props.query.connection : "" }, React.createElement('option', { value: '' }, 'Choose a Connection...'), this.props.connections ? this.props.connections.map(function (connection) {
-            return React.createElement('option', { key: connection._id, value: connection._id }, connection.name);
-        }) : '')), React.createElement('button', { id: 'btn-run-query', className: 'btn btn-primary btn-sm btn-block' }, React.createElement('span', { className: 'shortcut-letter' }, 'R'), 'un Query'), React.createElement('button', { id: 'btn-link-to-table', className: 'btn btn-default btn-sm btn-block' }, React.createElement('span', { className: 'glyphicon glyphicon-link' }), 'Link To Table'), React.createElement('br', null), React.createElement('label', { className: 'control-label' }, 'Auto-Refresh'), React.createElement('div', { className: 'input-group' }, React.createElement('span', { className: 'input-group-addon' }, React.createElement('input', { id: 'enable-auto-refresh', type: 'checkbox' })), React.createElement('input', { id: 'auto-refresh-seconds', type: 'text', className: 'form-control input-sm', placeholder: 'number of seconds' }))), React.createElement('hr', null), React.createElement('div', { id: 'panel-db-info-container' }, React.createElement('button', { id: 'btn-reload-schema', className: 'btn btn-default btn-sm', style: { display: "none" } }, React.createElement('span', { className: 'glyphicon glyphicon-refresh' })), React.createElement('div', { id: 'panel-db-info' }))), React.createElement('div', { className: 'tab-pane-main' }, React.createElement('div', { className: 'panel-editor' }, React.createElement('textarea', { id: 'codemirror-editor', defaultValue: this.props.query ? this.props.query.queryText : "" || "" })), React.createElement('div', { id: 'panel-result' }, React.createElement('div', { id: 'panel-result-header' }, React.createElement('span', { className: 'hide-while-running', style: { display: "none" } }, React.createElement('span', { className: 'panel-result-header-label' }, 'Query Run Time: '), React.createElement('span', { className: 'panel-result-header-value', id: 'server-run-time' }), React.createElement('span', { className: 'panel-result-header-label' }, 'Rows: '), React.createElement('span', { className: 'panel-result-header-value', id: 'rowcount' }), function () {
+        return React.createElement(
+            'div',
+            { className: 'container-fluid' },
+            React.createElement(
+                Nav,
+                { bsStyle: 'pills', activeKey: 1, className: 'query-editor-nav-pills', style: { float: "left" } },
+                React.createElement(
+                    NavItem,
+                    { eventKey: 1 },
+                    'SQL'
+                ),
+                React.createElement(
+                    NavItem,
+                    { eventKey: 2 },
+                    'Vis'
+                )
+            ),
+            React.createElement(
+                'form',
+                { className: 'navbar-form navbar-left navbar-left-border' },
+                React.createElement(
+                    'button',
+                    { type: 'button', id: 'btn-save', className: 'btn btn-default' },
+                    React.createElement(
+                        'span',
+                        { className: 'shortcut-letter' },
+                        'S'
+                    ),
+                    'ave'
+                ),
+                React.createElement(
+                    'div',
+                    { className: 'form-group', style: { marginLeft: "20px" } },
+                    React.createElement('input', { id: 'header-query-name', name: 'header-query-name', className: 'input-query-name form-control',
+                        defaultValue: this.props.query ? this.props.query.name : "", type: 'text', placeholder: 'Query Name' })
+                ),
+                React.createElement(
+                    'div',
+                    { className: 'form-group', style: { marginLeft: "20px" } },
+                    React.createElement(
+                        'label',
+                        { className: 'control-label', htmlFor: 'tags' },
+                        'Tags'
+                    )
+                ),
+                React.createElement(
+                    'div',
+                    { className: 'form-group' },
+                    React.createElement('input', { id: 'tags', name: 'tags', className: 'form-control', 'data-role': 'tagsinput',
+                        defaultValue: this.props.query ? this.props.query.tags : "", type: 'text' })
+                ),
+                React.createElement('input', { type: 'hidden', id: 'cache-key', defaultValue: this.props.cacheKey }),
+                React.createElement('input', { type: 'hidden', id: 'query-id', name: 'query-id', defaultValue: this.props.query ? this.props.query._id : "" || 'new' }),
+                React.createElement('span', { id: 'btn-save-result', className: 'label label-info' })
+            ),
+            React.createElement(
+                'div',
+                { id: 'panel-main' },
+                React.createElement(
+                    'div',
+                    { className: 'tab-content' },
+                    React.createElement(
+                        'div',
+                        { className: 'tab-pane active', id: 'tab-content-sql' },
+                        React.createElement(
+                            'div',
+                            { className: 'sidebar' },
+                            React.createElement(
+                                'form',
+                                null,
+                                React.createElement(
+                                    'div',
+                                    { className: 'form-group' },
+                                    React.createElement(
+                                        'label',
+                                        { className: 'control-label', htmlFor: 'connection' },
+                                        'Connection'
+                                    ),
+                                    React.createElement(
+                                        'select',
+                                        { id: 'connection', name: 'connection', className: 'form-control input-sm', defaultValue: this.props.query ? this.props.query.connection : "" },
+                                        React.createElement(
+                                            'option',
+                                            { value: '' },
+                                            'Choose a Connection...'
+                                        ),
+                                        this.props.connections ? this.props.connections.map(function (connection) {
+                                            return React.createElement(
+                                                'option',
+                                                { key: connection._id, value: connection._id },
+                                                connection.name
+                                            );
+                                        }) : ''
+                                    )
+                                ),
+                                React.createElement(
+                                    'button',
+                                    { id: 'btn-run-query', className: 'btn btn-primary btn-sm btn-block' },
+                                    React.createElement(
+                                        'span',
+                                        { className: 'shortcut-letter' },
+                                        'R'
+                                    ),
+                                    'un Query'
+                                ),
+                                React.createElement(
+                                    'button',
+                                    { id: 'btn-link-to-table', className: 'btn btn-default btn-sm btn-block' },
+                                    React.createElement('span', { className: 'glyphicon glyphicon-link' }),
+                                    'Link To Table'
+                                ),
+                                React.createElement('br', null),
+                                React.createElement(
+                                    'label',
+                                    { className: 'control-label' },
+                                    'Auto-Refresh'
+                                ),
+                                React.createElement(
+                                    'div',
+                                    { className: 'input-group' },
+                                    React.createElement(
+                                        'span',
+                                        { className: 'input-group-addon' },
+                                        React.createElement('input', { id: 'enable-auto-refresh', type: 'checkbox' })
+                                    ),
+                                    React.createElement('input', { id: 'auto-refresh-seconds', type: 'text', className: 'form-control input-sm', placeholder: 'number of seconds' })
+                                )
+                            ),
+                            React.createElement('hr', null),
+                            React.createElement(
+                                'div',
+                                { id: 'panel-db-info-container' },
+                                React.createElement(
+                                    'button',
+                                    { id: 'btn-reload-schema', className: 'btn btn-default btn-sm', style: { display: "none" } },
+                                    React.createElement('span', { className: 'glyphicon glyphicon-refresh' })
+                                ),
+                                React.createElement('div', { id: 'panel-db-info' })
+                            )
+                        ),
+                        React.createElement(
+                            'div',
+                            { className: 'tab-pane-main' },
+                            React.createElement(
+                                'div',
+                                { className: 'panel-editor' },
+                                React.createElement('textarea', { id: 'codemirror-editor', defaultValue: this.props.query ? this.props.query.queryText : "" || "" })
+                            ),
+                            React.createElement(
+                                'div',
+                                { id: 'panel-result' },
+                                React.createElement(
+                                    'div',
+                                    { id: 'panel-result-header' },
+                                    React.createElement(
+                                        'span',
+                                        { className: 'hide-while-running', style: { display: "none" } },
+                                        React.createElement(
+                                            'span',
+                                            { className: 'panel-result-header-label' },
+                                            'Query Run Time: '
+                                        ),
+                                        React.createElement('span', { className: 'panel-result-header-value', id: 'server-run-time' }),
+                                        React.createElement(
+                                            'span',
+                                            { className: 'panel-result-header-label' },
+                                            'Rows: '
+                                        ),
+                                        React.createElement('span', { className: 'panel-result-header-value', id: 'rowcount' }),
+                                        function () {
 
-            if (_this.props.allowDownload === true) {
+                                            if (_this.props.allowDownload === true) {
 
-                return React.createElement('span', null, React.createElement('span', { className: 'panel-result-header-label' }, 'Download: '), React.createElement('a', { id: 'csv-download-link', className: 'result-download-link', href: '/download-results/' + _this.props.cacheKey + '.csv' }, '.csv'), React.createElement('a', { id: 'xlsx-download-link', className: 'result-download-link', href: '/download-results/' + _this.props.cacheKey + '.xlsx' }, '.xlsx'));
-            } else {
+                                                return React.createElement(
+                                                    'span',
+                                                    null,
+                                                    React.createElement(
+                                                        'span',
+                                                        { className: 'panel-result-header-label' },
+                                                        'Download: '
+                                                    ),
+                                                    React.createElement(
+                                                        'a',
+                                                        { id: 'csv-download-link', className: 'result-download-link', href: '/download-results/' + _this.props.cacheKey + '.csv' },
+                                                        '.csv'
+                                                    ),
+                                                    React.createElement(
+                                                        'a',
+                                                        { id: 'xlsx-download-link', className: 'result-download-link', href: '/download-results/' + _this.props.cacheKey + '.xlsx' },
+                                                        '.xlsx'
+                                                    )
+                                                );
+                                            } else {
 
-                return "";
-            }
-        }(), React.createElement('span', { className: 'panel-result-header-label incomplete-notification hidden' }, 'Incomplete Data (hit record limit)'))), React.createElement('div', { id: 'result-slick-grid' }), React.createElement('div', { id: 'run-result-notification' })))), React.createElement('div', { className: 'tab-pane', id: 'tab-content-visualize' }, React.createElement('div', { className: 'sidebar' }, React.createElement('div', { id: 'chart-setup' }, React.createElement('div', { className: 'form-group' }, React.createElement('label', { className: 'control-label' }, 'Chart Type'), React.createElement('select', { id: 'chart-type-dropdown' }, React.createElement('option', { value: '' })))), React.createElement('div', { id: 'chart-setup-ui' }), React.createElement('div', null, React.createElement('button', { id: 'btn-visualize', className: 'btn btn-primary btn-sm btn-block' }, 'Visualize'), React.createElement('button', { id: 'btn-save-image', className: 'btn btn-default btn-sm btn-block' }, React.createElement('span', { className: 'glyphicon glyphicon-save' }), 'Save Chart Image'), React.createElement('button', { id: 'btn-link-to-chart', className: 'btn btn-default btn-sm btn-block' }, React.createElement('span', { className: 'glyphicon glyphicon-link' }), 'Link To Chart'))), React.createElement('div', { className: 'tab-pane-main' }, React.createElement('div', { id: 'chart', style: { height: "100%" } }, React.createElement('svg', { style: { height: 100 } })))))));
+                                                return "";
+                                            }
+                                        }(),
+                                        React.createElement(
+                                            'span',
+                                            { className: 'panel-result-header-label incomplete-notification hidden' },
+                                            'Incomplete Data (hit record limit)'
+                                        )
+                                    )
+                                ),
+                                React.createElement('div', { id: 'result-slick-grid' }),
+                                React.createElement('div', { id: 'run-result-notification' })
+                            )
+                        )
+                    ),
+                    React.createElement(
+                        'div',
+                        { className: 'tab-pane', id: 'tab-content-visualize' },
+                        React.createElement(
+                            'div',
+                            { className: 'sidebar' },
+                            React.createElement(
+                                'div',
+                                { id: 'chart-setup' },
+                                React.createElement(
+                                    'div',
+                                    { className: 'form-group' },
+                                    React.createElement(
+                                        'label',
+                                        { className: 'control-label' },
+                                        'Chart Type'
+                                    ),
+                                    React.createElement(
+                                        'select',
+                                        { id: 'chart-type-dropdown' },
+                                        React.createElement('option', { value: '' })
+                                    )
+                                )
+                            ),
+                            React.createElement('div', { id: 'chart-setup-ui' }),
+                            React.createElement(
+                                'div',
+                                null,
+                                React.createElement(
+                                    'button',
+                                    { id: 'btn-visualize', className: 'btn btn-primary btn-sm btn-block' },
+                                    'Visualize'
+                                ),
+                                React.createElement(
+                                    'button',
+                                    { id: 'btn-save-image', className: 'btn btn-default btn-sm btn-block' },
+                                    React.createElement('span', { className: 'glyphicon glyphicon-save' }),
+                                    'Save Chart Image'
+                                ),
+                                React.createElement(
+                                    'button',
+                                    { id: 'btn-link-to-chart', className: 'btn btn-default btn-sm btn-block' },
+                                    React.createElement('span', { className: 'glyphicon glyphicon-link' }),
+                                    'Link To Chart'
+                                )
+                            )
+                        ),
+                        React.createElement(
+                            'div',
+                            { className: 'tab-pane-main' },
+                            React.createElement(
+                                'div',
+                                { id: 'chart', style: { height: "100%" } },
+                                React.createElement('svg', { style: { height: 100 } })
+                            )
+                        )
+                    )
+                )
+            )
+        );
     } });
 
-},{"react":528,"react-bootstrap":255}],544:[function(require,module,exports){
+},{"react":528,"react-bootstrap":255}],545:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -49136,6 +49236,7 @@ module.exports = React.createClass({
             className: 'form-control top-field',
             required: true,
             defaultValue: '',
+            placeholder: 'Email address',
             autofocus: true }),
           React.createElement('input', {
             id: 'password',
@@ -49143,6 +49244,7 @@ module.exports = React.createClass({
             defaultValue: '',
             type: 'password',
             className: 'form-control bottom-field',
+            placeholder: 'Password',
             required: true }),
           React.createElement('br', null),
           React.createElement(
@@ -49169,7 +49271,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"react":528}],545:[function(require,module,exports){
+},{"react":528}],546:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -49252,7 +49354,7 @@ module.exports = React.createClass({
         );
     } });
 
-},{"react":528}],546:[function(require,module,exports){
+},{"react":528}],547:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -49413,7 +49515,7 @@ module.exports = React.createClass({
                                 { className: 'form-group' },
                                 React.createElement(
                                     'label',
-                                    { className: 'control-label sr-only', 'for': 'email' },
+                                    { className: 'control-label sr-only', htmlFor: 'email' },
                                     'Email Address'
                                 ),
                                 React.createElement('input', { id: 'email', name: 'email', defaultValue: '', type: 'text', placeholder: 'Email Address', className: 'form-control input-md' })

@@ -18,6 +18,7 @@ module.exports = React.createClass({
                 className="form-control top-field"
                 required
                 defaultValue=""
+                placeholder="Email address"
                 autofocus />
             <input
                 id="password"
@@ -25,6 +26,7 @@ module.exports = React.createClass({
                 defaultValue=""
                 type="password"
                 className="form-control bottom-field"
+                placeholder="Password"
                 required />
             <br />
             <button className="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>

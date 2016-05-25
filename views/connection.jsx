@@ -14,13 +14,13 @@ module.exports = React.createClass({
                 <legend>Connection</legend>
 
                 <div className="form-group">
-                  <label className="control-label" for="name">Friendly Connection Name</label>  
+                  <label className="control-label" htmlFor="name">Friendly Connection Name</label>  
                   
                   <input id="name" name="name" defaultValue={this.props.connection.name || ''} type="text" placeholder="" className="form-control input-md" />
                 </div>
 
                 <div className="form-group">
-                  <label className=" control-label" for="driver">Database Driver</label>
+                  <label className=" control-label" htmlFor="driver">Database Driver</label>
                   <div className="">
                     <select id="driver" name="driver" className="form-control" defaultValue={this.props.connection.driver}>
                       <option value="mysql">MySQL</option>
@@ -33,33 +33,33 @@ module.exports = React.createClass({
                 </div>
                 
                 <div className="form-group">
-                  <label className=" control-label" for="host">Host/Server/IP Address</label>  
+                  <label className=" control-label" htmlFor="host">Host/Server/IP Address</label>  
                   <div className="">
                     <input id="host" name="host" defaultValue={this.props.connection.host || ''} type="text" className="form-control input-md" required="" />
                   </div>
                 </div>
 
                 <div className="form-group">
-                  <label className=" control-label" for="port">Port (optional)</label>
+                  <label className=" control-label" htmlFor="port">Port (optional)</label>
                   <div className="">
                   <input id="port" name="port" defaultValue={this.props.connection.port || ''} type="text" className="form-control input-md" />
                   </div>
                 </div>
                 
                 <div className="form-group driver-specific mysql postgres sqlserver vertica">
-                  <label className=" control-label" for="database">Database Name</label>  
+                  <label className=" control-label" htmlFor="database">Database Name</label>  
                   <div className="">
                   <input id="database" name="database" defaultValue={this.props.connection.database || ''} type="text" className="form-control input-md" required="" />
                   </div>
                 </div>
                 
                 <div className="form-group driver-specific mysql postgres sqlserver vertica">
-                  <label className=" control-label" for="username">Database Username</label>  
+                  <label className=" control-label" htmlFor="username">Database Username</label>  
                   <input id="username" name="username" defaultValue={this.props.connection.username || ''} type="text" className="form-control input-md" />
                 </div>
                 
                 <div className="form-group driver-specific mysql postgres sqlserver vertica">
-                  <label className=" control-label" for="password">Password</label>
+                  <label className=" control-label" htmlFor="password">Password</label>
                   <input id="password" name="password" defaultValue={this.props.connection.password || ''} type="password" className="form-control input-md" /> 
                 </div>
                 
@@ -84,7 +84,7 @@ module.exports = React.createClass({
                 {(this.props.connection._id)?<input type="hidden" name="_method" value="put" />:""}
                 
                 <div className="form-group">
-                  <label className=" control-label" for="btnTest"></label>
+                  <label className=" control-label" htmlFor="btnTest"></label>
                   <div className="">
                     <button id="btn-Save-connection" name="btnSave" className="btn btn-primary" type="submit">Save</button>
                     <button id="btn-test-connection" name="btnTest" className="btn btn-inverse" type="submit">Test Connection</button>

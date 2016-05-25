@@ -24,7 +24,7 @@ module.exports = React.createClass({
                            defaultValue={this.props.query ? this.props.query.name : ""} type="text" placeholder="Query Name" />
                 </div>
                 <div className="form-group" style={{marginLeft:"20px"}}>
-                    <label className="control-label" for="tags">Tags</label>
+                    <label className="control-label" htmlFor="tags">Tags</label>
                 </div>
                 <div className="form-group">
                     <input id="tags" name="tags" className="form-control" data-role="tagsinput"
@@ -43,7 +43,7 @@ module.exports = React.createClass({
                 <div className="sidebar">
                     <form>
                         <div className="form-group">
-                            <label className="control-label" for="connection">Connection</label>
+                            <label className="control-label" htmlFor="connection">Connection</label>
                             <select id="connection" name="connection" className="form-control input-sm" defaultValue={this.props.query ? this.props.query.connection : ""}>
                                 <option value="">Choose a Connection...</option>
                                 {this.props.connections ? this.props.connections.map(function(connection) {

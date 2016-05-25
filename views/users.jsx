@@ -79,7 +79,7 @@ module.exports = React.createClass({
                             SqlPad isn't fancy enough for that kind of stuff.
                         </p>
                         <div className="form-group">
-                            <label className="control-label sr-only" for="email">Email Address</label>
+                            <label className="control-label sr-only" htmlFor="email">Email Address</label>
                             <input id="email" name="email" defaultValue="" type="text" placeholder="Email Address" className="form-control input-md" />
                         </div>
                         <div className="checkbox">

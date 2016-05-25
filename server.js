@@ -61,13 +61,15 @@ var morgan = require('morgan');
 var passport = require('passport');
 var connectFlash = require('connect-flash');
 var errorhandler = require('errorhandler');
+var reactroutes;
 
 app.locals.title = 'SqlPad';
 app.locals.version = packageJson.version;
 
 if ( config.engine === 'react' ) {
 
-    var reactroutes = require('./routes/routes.jsx');
+
+    reactroutes = require('./routes/routes.jsx');
 
     router = app;
 

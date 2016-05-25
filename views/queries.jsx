@@ -11,20 +11,20 @@ module.exports = React.createClass({
      
      return (
 
-        <div className="col-sm-12  col-md-12 main">
+        <div className="col-sm-12 col-md-12 main">
 
             <form id="query-filter-form">
                 <fieldset>
                     <div className="row">
                         <div className="col-sm-4 col-md-4">
                             <div className="form-group">
-                                <label className="control-label" for="search">Search (Name, Query)</label>
+                                <label className="control-label" htmlFor="search">Search (Name, Query)</label>
                                 <input id="query-filter-search" name="search" className="form-control" type="text" />
                             </div>
                         </div>
                         <div className="col-sm-2 col-md-2">
                             <div className="form-group">
-                                <label className="control-label" for="tag">Tag</label>
+                                <label className="control-label" htmlFor="tag">Tag</label>
                                 <select id="query-filter-tag" name="tag" className="form-control" defaultValue={this.props.filter.tags}>
                                     <option value="">All</option>
                                     {this.props.tags ? this.props.tags.map(function(tag) {
@@ -39,7 +39,7 @@ module.exports = React.createClass({
                         </div>
                         <div className="col-sm-2 col-md-2">
                             <div className="form-group">
-                                <label className="control-label" for="connection">Connection</label>
+                                <label className="control-label" htmlFor="connection">Connection</label>
                                 <select id="query-filter-connection" name="connection" className="form-control" defaultValue={this.props.filter.connectionId}>
                                     <option value="">All</option>
                                     {this.props.connections ? this.props.connections.map(function(connection) {
@@ -54,7 +54,7 @@ module.exports = React.createClass({
                         </div>
                         <div className="col-sm-2 col-md-2">
                             <div className="form-group">
-                                <label className="control-label" for="createdBy">Created By</label>
+                                <label className="control-label" htmlFor="createdBy">Created By</label>
                                 <select id="query-filter-created-by" name="createdBy" className="form-control" defaultValue={this.props.filter.createdBy}>
                                     <option value="">Everyone</option>
                                     {this.props.createdBys ? this.props.createdBys.map(function(createdBy) {
@@ -69,7 +69,7 @@ module.exports = React.createClass({
                         </div>
                         <div className="col-sm-2 col-md-2">
                             <div className="form-group">
-                                <label className="control-label" for="sortBy">Sort By</label>
+                                <label className="control-label" htmlFor="sortBy">Sort By</label>
                                 <select id="query-filter-sort-by" name="sortBy" className="form-control" defaultValue="modified">
                                     <option value="modified">Modified</option>
                                     <option value="name">Name</option>

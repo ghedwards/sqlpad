@@ -3,6 +3,7 @@
 import React from 'react';
 import { Router, Route, IndexRoute, Redirect, browserHistory } from 'react-router';
 
+import Home from '../views/home.jsx';
 import Layout from '../views/layout.jsx';
 import Error404 from '../views/404.jsx';
 import SignIn from '../views/signin.jsx';
@@ -20,6 +21,7 @@ import QueriesTable from '../views/queries-table.jsx';
 module.exports = (
   <Router history={browserHistory}>
     <Route path='/' component={Layout}>
+      <IndexRoute component={Home} />
       <Route path='/signin' component={SignIn} />
       <Route path='/signout' component={SignOut} />
       <Route path='/query*' component={Query} />

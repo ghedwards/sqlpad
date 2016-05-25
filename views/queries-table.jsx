@@ -27,9 +27,9 @@ module.exports = React.createClass({
                             return <tr key={query._id}>
                                 <td><a href={'/query/'+query._id}>{query.name}</a></td>
                                 <td>
-                                    {query.tags.map(function(tag) {
+                                    {query.tags ? query.tags.map(function(tag) {
                                         <a key={tag} className="tag label label-info" href={'/queries?tag='+tag}>{tag}</a>
-                                    })}
+                                    }):""}
                                 </td>
                                 <td>{query.createdBy}</td>
                                 <td>{query.modifiedCalendar}</td>

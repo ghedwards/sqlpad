@@ -16,14 +16,14 @@ module.exports = React.createClass({
             <legend>Config Item</legend>
 
             <div className="form-group">
-                <label className="control-label" for="key">Key</label>
+                <label className="control-label" htmlFor="key">Key</label>
 
                 <input id="key" name="key" defaultValue={this.props.config ? this.props.config.key : ""} type="text" placeholder=""
                        className="form-control input-md" />
             </div>
 
             <div className="form-group">
-                <label className="control-label" for="value">Value</label>
+                <label className="control-label" htmlFor="value">Value</label>
 
                 <input id="value" name="value" defaultValue={this.props.config ? this.props.config.value : ""} type="text" placeholder=""
                        className="form-control input-md" />
@@ -32,7 +32,7 @@ module.exports = React.createClass({
             {(this.props.config && this.props.config._id)?<input type="hidden" name="_method" value="put"/>:""}
 
             <div className="form-group">
-                <label className="control-label" for="btnTest"></label>
+                <label className="control-label" htmlFor="btnTest"></label>
 
                 <div className="">
                     <button id="btn-Save-config" name="btnSave" className="btn btn-primary" type="submit">Save</button>
