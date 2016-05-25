@@ -6,7 +6,7 @@ module.exports = function (app, router) {
         
     function renderUsers (req, res) {
         db.users.find({}).sort({email: 1}).exec(function (err, users) {
-            res.render('users', {users: users, pageTitle: "Users"});
+            res.render(((res.locals.engine==='react')?'/':'')+'users', {users: users, pageTitle: "Users"});
         });   
     }
     
@@ -57,5 +57,14 @@ module.exports = function (app, router) {
             res.redirect(baseUrl + '/users');
         });
     });
-      
+    
+    router.post('/users/:_id', function (req, res) {
+        if ( req.body._method && req.body._method === 'delete' ) {
+            db.users.remove({_id: req.params._id}, function (err) {
+                if (err) console.log(err);
+                res.redirect(baseUrl + '/users');
+            });
+        }
+    });
+    
 };

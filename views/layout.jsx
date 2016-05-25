@@ -18,19 +18,19 @@ module.exports = React.createClass({
         <head>
           <meta charSet='utf-8' />
           <title>{this.props.title}</title>
-             <link rel="stylesheet" href="stylesheets/bootstrap.min.css"/>
-            <link rel="stylesheet" href="stylesheets/bootstrap-theme.min.css"/>
-{/*
-           <link rel="stylesheet" href="stylesheets/vendor/codemirror/codemirror.css" type="text/css"/>
-            <link rel="stylesheet" href="stylesheets/vendor/codemirror/addon/hint/show-hint.css" />
+            <link rel="stylesheet" href="/stylesheets/bootstrap.min.css"/>
+            <link rel="stylesheet" href="/stylesheets/bootstrap-theme.min.css"/>
 
+            <link rel="stylesheet" href="/stylesheets/vendor/codemirror/codemirror.css" type="text/css"/>
+            <link rel="stylesheet" href="/stylesheets/vendor/codemirror/addon/hint/show-hint.css" />
+{/*
             <link rel="stylesheet" href="javascripts/vendor/slickgrid/slick.grid.css" type="text/css"/>
             <link rel="stylesheet" href="javascripts/vendor/slickgrid/slick-default-theme.css" type="text/css"/>
             <link rel="stylesheet" href="javascripts/vendor/bootstrap-tagsinput/bootstrap-tagsinput.css" type="text/css"/>
             <link rel="stylesheet" href="javascripts/vendor/tauCharts/tauCharts.min.css" type="text/css"/>
             <link rel="stylesheet" href="stylesheets/vendor/fontawesome/css/font-awesome.min.css" type="text/css"/>*/}
 
-            <link rel="stylesheet" href="stylesheets/style.css" />
+            <link rel="stylesheet" href="/stylesheets/style.css" />
 
         </head>
         <body>
@@ -41,7 +41,7 @@ module.exports = React.createClass({
 
                <Nav>
 
-                  {( this.props.isAuthenticated ) ? <NavItem eventKey={1} href="/queries/new">New Query</NavItem> : "" }
+                  {( this.props.isAuthenticated ) ? <NavItem eventKey={1} href="/query/new">New Query</NavItem> : "" }
 
                   {( this.props.isAuthenticated ) ? <NavItem className={(this.props.pageTitle && this.props.pageTitle === "Queries") ? "active" : ""} eventKey={2} href={"/queries?createdBy="+this.props.user.email}>Queries</NavItem> : "" }
 
@@ -87,16 +87,17 @@ module.exports = React.createClass({
               </div>
           </div>
 
-          <script src="javascripts/vendor/jquery-2.2.0.min.js"></script>
-          <script src="javascripts/vendor/underscore-min.js"></script>
+          {/*<script src="/javascripts/vendor/jquery-2.2.0.min.js"></script>
+          <script src="/javascripts/vendor/underscore-min.js"></script>
           
-          {/*<script src="javascripts/vendor/bootstrap.min.js"></script>
+           <script src="/javascripts/vendor/codemirror/codemirror.js" type="text/javascript"></script>
+          <script src="/javascripts/vendor/codemirror/sql.js" type="text/javascript"></script>
 
-          <script src="javascripts/vendor/codemirror/codemirror.js" type="text/javascript"></script>
-          <script src="javascripts/vendor/codemirror/sql.js" type="text/javascript"></script>
+          <script src="/javascripts/vendor/codemirror/addon/hint/show-hint.js" type="text/javascript"></script>
+          <script src="/javascripts/vendor/codemirror/addon/hint/sql-hint.js" type="text/javascript"></script>
+          <script src="javascripts/vendor/bootstrap.min.js"></script>
 
-          <script src="javascripts/vendor/codemirror/addon/hint/show-hint.js" type="text/javascript"></script>
-          <script src="javascripts/vendor/codemirror/addon/hint/sql-hint.js" type="text/javascript"></script>
+         
 
           <script src="javascripts/vendor/jquery.event.drag-2.2.js"></script>
           <script src="javascripts/vendor/slickgrid/slick.core.js"></script>
@@ -107,9 +108,9 @@ module.exports = React.createClass({
           <script src="javascripts/vendor/bootstrap-tagsinput/bootstrap-tagsinput.min.js"></script>
           <script src="javascripts/vendor/tauCharts/tauCharts.min.js"></script>
          
-          */}
-          <script src="javascripts/vendor/ZeroClipboard/ZeroClipboard.min.js"></script>
-          <script src="javascripts/browserified.js"></script>
+          
+          <script src="/javascripts/vendor/ZeroClipboard/ZeroClipboard.min.js"></script>*/}
+          <script src="/javascripts/browserified.js"></script>
 
           <script>
             window.configItems = {};

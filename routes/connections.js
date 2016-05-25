@@ -28,7 +28,7 @@ module.exports = function (app, router) {
             connections = _.sortBy(connections, function (c) {
                 return c.name.toLowerCase();
             });
-            res.render('connections', {pageTitle: "Connections", connections: connections});
+            res.render(((res.locals.engine==='react')?'/':'')+'connections', {pageTitle: "Connections", connections: connections});
         });
     });
 
@@ -40,7 +40,7 @@ module.exports = function (app, router) {
                 connection.username = decipher(connection.username);
                 connection.password = "";
             }
-            res.render('connection', {
+            res.render(((res.locals.engine==='react')?'/':'')+'connection', {
                 connection: connection
             });
         });
@@ -55,7 +55,7 @@ module.exports = function (app, router) {
         db.connections.insert(connection, function (err) {
             if (err) {
                 console.log(err);
-                res.render('connection', {debug: err});
+                res.render(((res.locals.engine==='react')?'/':'')+'connection', {debug: err});
             } else {
                 res.redirect(baseUrl + '/connections');
             }
@@ -106,5 +106,14 @@ module.exports = function (app, router) {
             if (err) console.log(err);
             res.redirect(baseUrl + '/connections');
         });
+    });
+
+    router.post('/connections/:_id', function (req, res) {
+        if ( req.body._method && req.body._method === 'delete' ) {
+            db.connections.remove({_id: req.params._id}, function (err) {
+                if (err) console.log(err);
+                res.redirect(baseUrl + '/connections');
+            });
+        }
     });
 };

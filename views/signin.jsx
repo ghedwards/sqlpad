@@ -17,11 +17,12 @@ module.exports = React.createClass({
                 type="text"
                 className="form-control top-field"
                 required
+                defaultValue=""
                 autofocus />
             <input
                 id="password"
                 name="password"
-                value=""
+                defaultValue=""
                 type="password"
                 className="form-control bottom-field"
                 required />

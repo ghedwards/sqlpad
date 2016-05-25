@@ -97,7 +97,99 @@ module.exports = function (app, router) {
         });
     });
 
-    router.get('/queries/:_id', function (req, res) {
+
+    
+    router.post('/queries/:_id', function (req, res, next) {
+
+        if ( req.body._method && req.body._method === 'delete' ) {
+            
+            db.queries.remove({_id: req.params._id}, function (err) {
+                console.log(err);
+                res.redirect(baseUrl + '/queries');
+            });
+
+        } else {
+
+            // save the query, to the query db
+            var bodyQuery = {
+                name: req.body.name || "No Name Query",
+                tags: req.body.tags,
+                connectionId: req.body.connectionId,
+                queryText: req.body.queryText,
+                chartConfiguration: req.body.chartConfiguration,
+                modifiedDate: new Date(),
+                modifiedBy: req.user.email,
+                lastAccessedDate: new Date()
+            };
+            if (req.params._id == "new") {
+                bodyQuery.createdDate = new Date();
+                bodyQuery.createdBy = req.user.email;
+
+                db.queries.insert(bodyQuery, function (err, query) {
+                    if (err) {
+                        console.log(err);
+                        res.send({err: err, success: false});
+                    } else {
+                        db.config.findOne({ key: "slackWebhook"}, function(err, webhook){
+                            if (err) console.log(err);
+                            if (!webhook) {
+                                // if not configured, just return success response
+                                res.send({success:true, query: query});
+                            } else {
+                                pushQueryToSlack(query, req.user.email, webhook.value, function(err){
+                                    if (err) console.log("Something went wrong while sending to Slack.")
+                                    else {
+                                        res.send({success: true, query: query});
+                                    }
+                                 });
+                            }
+                        });
+                    }
+                });
+            } else {
+                // This style update merges the bodyQuery values to whatever objects 
+                // are matched by the initial filter (in this case, _id, which will only match 1 query)
+                db.queries.update({_id: req.params._id}, {$set: bodyQuery}, {}, function (err) {
+                    if (err) {
+                        console.log(err);
+                        res.send({err: err, success: false});
+                    } else {
+                        bodyQuery._id = req.params._id;
+                        res.send({success: true, query: bodyQuery});
+                    }
+                });
+            }
+
+        }
+
+        next();
+
+    });
+
+    router.delete('/queries/:_id', function (req, res) {
+        db.queries.remove({_id: req.params._id}, function (err) {
+            console.log(err);
+            res.redirect(baseUrl + '/queries');
+        });
+    });
+
+    router.post('/queries/:_id', function (req, res) {
+        if ( req.body._method && req.body._method === 'delete' ) {
+            db.queries.remove({_id: req.params._id}, function (err) {
+                console.log(err);
+                res.redirect(baseUrl + '/queries');
+            });
+        }
+    });
+
+    router.delete('/query/:_id', function (req, res) {
+        db.queries.remove({_id: req.params._id}, function (err) {
+            console.log(err);
+            res.redirect(baseUrl + '/queries');
+        });
+    });
+
+    router.use('/query/:_id', function (req, res) {
 
         var ua = req.headers['user-agent'];
         var os = uaParser.parseOS(ua).toString();
@@ -124,10 +216,11 @@ module.exports = function (app, router) {
                 var format = req.query && req.query.format;
 
                 if (req.params._id === 'new') {
-                    res.render('query', {
+                    res.render(((res.locals.engine==='react')?'/':'')+'query', {
                         query: {
                             name: ""
                         },
+                        connections: _.sortBy(connections, 'name'),
                         format: format
                     });
                 } else {
@@ -140,10 +233,12 @@ module.exports = function (app, router) {
                             res.json(query);
                         } else {
                             // render page
-                            res.render('query', {
+                            res.render(((res.locals.engine==='react')?'/':'')+'query', {
                                 query: query, 
                                 
                                 // format may be set to 'chart' or 'table'
+                                format: format,
+                                connections: _.sortBy(connections, 'name'),
                                 format: format,
                                 fullscreenContent: ['chart', 'table'].indexOf(format) > -1 ? true: false
                             });
@@ -154,63 +249,5 @@ module.exports = function (app, router) {
         });
     });
 
-    router.post('/queries/:_id', function (req, res) {
-        // save the query, to the query db
-        var bodyQuery = {
-            name: req.body.name || "No Name Query",
-            tags: req.body.tags,
-            connectionId: req.body.connectionId,
-            queryText: req.body.queryText,
-            chartConfiguration: req.body.chartConfiguration,
-            modifiedDate: new Date(),
-            modifiedBy: req.user.email,
-            lastAccessedDate: new Date()
-        };
-        if (req.params._id == "new") {
-            bodyQuery.createdDate = new Date();
-            bodyQuery.createdBy = req.user.email;
-
-            db.queries.insert(bodyQuery, function (err, query) {
-                if (err) {
-                    console.log(err);
-                    res.send({err: err, success: false});
-                } else {
-                    db.config.findOne({ key: "slackWebhook"}, function(err, webhook){
-                        if (err) console.log(err);
-                        if (!webhook) {
-                            // if not configured, just return success response
-                            res.send({success:true, query: query});
-                        } else {
-                            pushQueryToSlack(query, req.user.email, webhook.value, function(err){
-                                if (err) console.log("Something went wrong while sending to Slack.")
-                                else {
-                                    res.send({success: true, query: query});
-                                }
-                             });
-                        }
-                    });
-                }
-            });
-        } else {
-            // This style update merges the bodyQuery values to whatever objects 
-            // are matched by the initial filter (in this case, _id, which will only match 1 query)
-            db.queries.update({_id: req.params._id}, {$set: bodyQuery}, {}, function (err) {
-                if (err) {
-                    console.log(err);
-                    res.send({err: err, success: false});
-                } else {
-                    bodyQuery._id = req.params._id;
-                    res.send({success: true, query: bodyQuery});
-                }
-            });
-        }
-    });
-
-    router.delete('/queries/:_id', function (req, res) {
-        db.queries.remove({_id: req.params._id}, function (err) {
-            console.log(err);
-            res.redirect(baseUrl + '/queries');
-        });
-    });
 
 };

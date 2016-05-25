@@ -2,13 +2,13 @@
 
 var React = require('react');
 
-import Layout from '../views/layout.jsx';
+import QueriesTable from '../views/queries-table.jsx';
 
 module.exports = React.createClass({
   displayName: 'Queries',
 
   render: function render() { 
-
+     
      return (
 
         <div className="col-sm-12  col-md-12 main">
@@ -25,47 +25,53 @@ module.exports = React.createClass({
                         <div className="col-sm-2 col-md-2">
                             <div className="form-group">
                                 <label className="control-label" for="tag">Tag</label>
-                                <select id="query-filter-tag" name="tag" className="form-control">
+                                <select id="query-filter-tag" name="tag" className="form-control" defaultValue={this.props.filter.tags}>
                                     <option value="">All</option>
-                                    {/* <% tags.forEach(function(tag) { %>
-                                     *   <option value="<%= tag %>" <%=( filter && filter.tags && filter.tags===tag ? 'selected' : '') %>>
-                                     *       <%= tag %>
-                                     *   </option>
-                                    <% }) %> */}
+                                    {this.props.tags ? this.props.tags.map(function(tag) {
+                                        return (
+                                          <option key={tag} value={tag}>
+                                            {tag}
+                                          </option>
+                                        );
+                                      }) : ""}
                                 </select>
                             </div>
                         </div>
                         <div className="col-sm-2 col-md-2">
                             <div className="form-group">
                                 <label className="control-label" for="connection">Connection</label>
-                                <select id="query-filter-connection" name="connection" className="form-control">
+                                <select id="query-filter-connection" name="connection" className="form-control" defaultValue={this.props.filter.connectionId}>
                                     <option value="">All</option>
-                                    {/* <% connections.forEach(function(connection) { %>
-                                        <option value="<%= connection._id %>" <%=( filter && filter.connectionId && filter.connectionId===connection._id ? 'selected' : '') %>>
-                                            <%= connection.name || "" %>
-                                        </option>
-                                    <% }) %> */}
+                                    {this.props.connections ? this.props.connections.map(function(connection) {
+                                        return (
+                                          <option key={connection._id} value={connection._id}>
+                                            {connection.name}
+                                          </option>
+                                        );
+                                      }):""}
                                 </select>
                             </div>
                         </div>
                         <div className="col-sm-2 col-md-2">
                             <div className="form-group">
                                 <label className="control-label" for="createdBy">Created By</label>
-                                <select id="query-filter-created-by" name="createdBy" className="form-control">
+                                <select id="query-filter-created-by" name="createdBy" className="form-control" defaultValue={this.props.filter.createdBy}>
                                     <option value="">Everyone</option>
-                                    {/* <% createdBys.forEach(function(createdBy) { %>
-                                        <option value="<%= createdBy %>" <%=( filter && filter.createdBy && filter.createdBy===createdBy ? 'selected' : '') %>>
-                                            <%= (createdBy && createdBy == user.email ? "Me" : (createdBy || "")) %>
-                                        </option>
-                                    <% }) %> */}
+                                    {this.props.createdBys ? this.props.createdBys.map(function(createdBy) {
+                                        return (
+                                          <option key={createdBy} value={createdBy}>
+                                            {createdBy}
+                                          </option>
+                                        );
+                                      }):""}
                                 </select>
                             </div>
                         </div>
                         <div className="col-sm-2 col-md-2">
                             <div className="form-group">
                                 <label className="control-label" for="sortBy">Sort By</label>
-                                <select id="query-filter-sort-by" name="sortBy" className="form-control">
-                                    <option value="modified" selected>Modified</option>
+                                <select id="query-filter-sort-by" name="sortBy" className="form-control" defaultValue="modified">
+                                    <option value="modified">Modified</option>
                                     <option value="name">Name</option>
                                 </select>
                             </div>
@@ -77,7 +83,7 @@ module.exports = React.createClass({
             </form>
             
             <div id="queries-table">
-
+                 <QueriesTable queries={this.props.queries}></QueriesTable>
             </div>
             
         </div>

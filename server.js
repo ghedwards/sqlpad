@@ -98,7 +98,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: true
 }));
-app.use(methodOverride()); // simulate PUT/DELETE via POST in client by <input type="hidden" name="_method" value="put" />
+app.use(methodOverride("_method")); // simulate PUT/DELETE via POST in client by <input type="hidden" name="_method" value="put" />
 app.use(cookieParser(app.get('passphrase'))); // populates req.cookies with an object
 app.use(cookieSession({secret: app.get('passphrase')}));
 app.use(connectFlash());
@@ -218,7 +218,7 @@ if ( config.engine === 'react' ) {
     ============================================================================= */
     var b = browserify({
 
-        entries: ['./client-js/main.js'],
+        entries: ['./client-js/main-react.js'],
         cache: {},
         packageCache: {},
         plugin: [watchify]

@@ -21,7 +21,7 @@ module.exports = function (app, router) {
             if (req.session && req.session.userId) {
                 res.locals.debug = {message: "Already signed in - why do you need to sign up?"};
                 res.location(baseUrl + '/');
-                res.render('index');
+                res.render(((res.locals.engine==='react')?'/':'')+'index');
             } else {
                 next();
             }
@@ -33,7 +33,7 @@ module.exports = function (app, router) {
         
         router.post('/signup', signupBodyToLocals, function (req, res) {
             if (req.body.password !== req.body.passwordConfirmation) {
-                res.render('signup', {message: 'passwords are not match'});
+                res.render(((res.locals.engine==='react')?'/':'')+'signup', {message: 'passwords are not match'});
             } else {
                 bcrypt.hash(req.body.password, null, null, function(err, hash) {
                     var bodyUser = {
@@ -53,7 +53,7 @@ module.exports = function (app, router) {
                             });
                         } else if (err) {
                             console.log(err);
-                            res.render('signup', {message: 'An error happened.'});
+                            res.render(((res.locals.engine==='react')?'/':'')+'signup', {message: 'An error happened.'});
                         } else if (app.get('openAdminRegistration') || app.get('checkWhitelist')(req.body.email)) {
                             // first admin in the system, so allow it to go through
                             // also allow whitelisted emails
@@ -69,7 +69,7 @@ module.exports = function (app, router) {
                                 // set session, turn open registration off
                                 if (err) {
                                     console.log(err);
-                                    res.render('signup', {message: 'An error happened saving the new user to DB.'});
+                                    res.render(((res.locals.engine==='react')?'/':'')+'signup', {message: 'An error happened saving the new user to DB.'});
                                 } else {
                                     app.set('openAdminRegistration', false);
                                     req.session.userId = newUser._id;
@@ -81,7 +81,7 @@ module.exports = function (app, router) {
                         } else {
                             // not whitelisted?
                             console.log(user);
-                            res.render('signup', {message: 'Sorry, but that email address has not been whitelisted yet.'});
+                            res.render(((res.locals.engine==='react')?'/':'')+'signup', {message: 'Sorry, but that email address has not been whitelisted yet.'});
                         }
                     });
                 });

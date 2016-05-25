@@ -15,7 +15,7 @@ module.exports = function (app, router) {
                 });
             } else {
 
-                res.render('configs', {configItems: configItems, pageTitle: "Configuration"});
+                res.render(((res.locals.engine==='react')?'/':'')+'configs', {configItems: configItems, pageTitle: "Configuration"});
             }
         });
     });
@@ -30,7 +30,7 @@ module.exports = function (app, router) {
                     modifiedDate: null
                 };
             }
-            res.render('config', {
+            res.render(((res.locals.engine==='react')?'/':'')+'config', {
                 config: config
             });
         });
@@ -47,7 +47,7 @@ module.exports = function (app, router) {
         db.config.insert(config, function (err) {
             if (err) {
                 console.log(err);
-                res.render('config', {config: config, debug: err});
+                res.render(((res.locals.engine==='react')?'/':'')+'config', {config: config, debug: err});
             } else {
                 res.redirect(baseUrl + '/configs');
             }
@@ -76,4 +76,14 @@ module.exports = function (app, router) {
             res.redirect(baseUrl + '/configs');
         });
     });
+
+    router.post('/configs/:_id', function (req, res) {
+        if ( req.body._method && req.body._method === 'delete' ) {
+            db.config.remove({_id: req.params._id}, function (err) {
+                if (err) console.log(err);
+                res.redirect(baseUrl + '/configs');
+            });
+        }
+    });
+    
 };
