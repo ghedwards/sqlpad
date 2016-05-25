@@ -61,12 +61,13 @@ var morgan = require('morgan');
 var passport = require('passport');
 var connectFlash = require('connect-flash');
 var errorhandler = require('errorhandler');
-var reactroutes = require('./routes/routes.jsx');
 
 app.locals.title = 'SqlPad';
 app.locals.version = packageJson.version;
 
 if ( config.engine === 'react' ) {
+
+    var reactroutes = require('./routes/routes.jsx');
 
     router = app;
 
@@ -81,8 +82,9 @@ if ( config.engine === 'react' ) {
     app.set('view', reactEngine.expressView);
 
 } else {
-    app.set('view engine', 'ejs');    
 
+    app.set('views', path.join(__dirname, 'views'));
+    app.set('view engine', 'ejs');
     router = express.Router();
     
 }
@@ -105,7 +107,7 @@ app.use(passport.session());
 app.use(config.baseUrl, express.static(path.join(__dirname, 'public')));
 if (app.get('dev')) app.use(morgan('dev'));
 
-app[config.engine === 'react'?'use':'get'](function (req, res, next) {
+app.use(function (req, res, next) {
 
     // Boostrap res.locals with any common variables
     res.locals.errors = req.flash('error');
@@ -119,8 +121,8 @@ app[config.engine === 'react'?'use':'get'](function (req, res, next) {
     res.locals.openAdminRegistration = app.get('openAdminRegistration');
     res.locals.user = req.user;
     res.locals.isAuthenticated = req.isAuthenticated();
-    res.locals.baseUrl = config.baseUrl
-
+    res.locals.baseUrl = config.baseUrl;
+    res.locals.engine = config.engine;
     // Expose key-value configs as a common variable
     var db = app.get('db');
 
@@ -142,7 +144,7 @@ app[config.engine === 'react'?'use':'get'](function (req, res, next) {
       next();
     });
 });
-app[config.engine === 'react'?'use':'get'](function (req, res, next) {
+app.use(function (req, res, next) {
     // if not signed in redirect to sign in page
     if (req.isAuthenticated()) {
         next();
