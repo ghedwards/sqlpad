@@ -5,11 +5,12 @@ var React = require('react');
 import Layout from '../views/layout.jsx';
 
 module.exports = React.createClass({
-  displayName: 'SignIn',
+  displayName: 'Queries',
 
   render: function render() { 
-    return (
-      <Layout>
+
+     return (
+
         <div className="col-sm-12  col-md-12 main">
 
             <form id="query-filter-form">
@@ -34,9 +35,9 @@ module.exports = React.createClass({
                                 </select>
                             </div>
                         </div>
-                        <div class="col-sm-2 col-md-2">
-                            <div class="form-group">
-                                <label class="control-label" for="connection">Connection</label>
+                        <div className="col-sm-2 col-md-2">
+                            <div className="form-group">
+                                <label className="control-label" for="connection">Connection</label>
                                 <select id="query-filter-connection" name="connection" className="form-control">
                                     <option value="">All</option>
                                     {/* <% connections.forEach(function(connection) { %>
@@ -80,7 +81,6 @@ module.exports = React.createClass({
             </div>
             
         </div>
-      </Layout>
     );
   }
 });

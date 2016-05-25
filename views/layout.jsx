@@ -12,116 +12,72 @@ module.exports = React.createClass({
   displayName: 'Layout',
   
   render: function render() {
+
     return (
       <html lang="en">
         <head>
           <meta charSet='utf-8' />
           <title>{this.props.title}</title>
-            <link rel="stylesheet" href="stylesheets/bootstrap.min.css"/>
+             <link rel="stylesheet" href="stylesheets/bootstrap.min.css"/>
             <link rel="stylesheet" href="stylesheets/bootstrap-theme.min.css"/>
-
-            <link rel="stylesheet" href="stylesheets/vendor/codemirror/codemirror.css" type="text/css"/>
+{/*
+           <link rel="stylesheet" href="stylesheets/vendor/codemirror/codemirror.css" type="text/css"/>
             <link rel="stylesheet" href="stylesheets/vendor/codemirror/addon/hint/show-hint.css" />
 
             <link rel="stylesheet" href="javascripts/vendor/slickgrid/slick.grid.css" type="text/css"/>
             <link rel="stylesheet" href="javascripts/vendor/slickgrid/slick-default-theme.css" type="text/css"/>
             <link rel="stylesheet" href="javascripts/vendor/bootstrap-tagsinput/bootstrap-tagsinput.css" type="text/css"/>
             <link rel="stylesheet" href="javascripts/vendor/tauCharts/tauCharts.min.css" type="text/css"/>
-            <link rel="stylesheet" href="stylesheets/vendor/fontawesome/css/font-awesome.min.css" type="text/css"/>
+            <link rel="stylesheet" href="stylesheets/vendor/fontawesome/css/font-awesome.min.css" type="text/css"/>*/}
 
             <link rel="stylesheet" href="stylesheets/style.css" />
 
         </head>
         <body>
 
-        <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-          <div class="container-fluid">
-            
-            {(() => {
+            <Navbar className="navbar-inverse navbar-fixed-top">
+              <Navbar.Header>
+              </Navbar.Header>
 
-              //console.log(this.props);
-                
-              if ( this.props.isAuthenticated ) {
+               <Nav>
 
-                return <Navbar>
-                    <Navbar.Header>
-                    </Navbar.Header>
-                    <Nav>
+                  {( this.props.isAuthenticated ) ? <NavItem eventKey={1} href="/queries/new">New Query</NavItem> : "" }
 
-                      <NavItem eventKey={1} href="/queries/new">New Query</NavItem>
-                      <NavItem eventKey={2} href="queries?createdBy={this.props.user.email}">Queries</NavItem>
+                  {( this.props.isAuthenticated ) ? <NavItem className={(this.props.pageTitle && this.props.pageTitle === "Queries") ? "active" : ""} eventKey={2} href={"/queries?createdBy="+this.props.user.email}>Queries</NavItem> : "" }
 
-                     
-                    </Nav>
-                  </Navbar>
+                  {( this.props.user && this.props.user.admin ) ? <NavItem className={(this.props.pageTitle && this.props.pageTitle === "Connections") ? "active" : ""} href="/connections">Connections</NavItem> : "" }
 
-              } else {
+                  {( this.props.user && this.props.user.admin ) ? <NavItem className={(this.props.pageTitle && this.props.pageTitle === "Users") ? "active" : ""} href="/users">Users</NavItem> : "" }
 
-                  return "";
+                  {( this.props.user && this.props.user.admin ) ? <NavItem className={(this.props.pageTitle && this.props.pageTitle === "Configuration") ? "active" : ""} href="/configs">Configuration</NavItem> : "" }
 
-              }
+                </Nav>
 
-            })()}
+                {(() => {
 
-              {/*<Navbar.Brand>
-                  <a href="#">React-Bootstrap</a>
-                </Navbar.Brand>*/}
-              
+                    if ( this.props.isAuthenticated ) {
 
-             {/*<% if (isAuthenticated && user.admin) { %>
-                <li class="<%= (pageTitle && pageTitle == "Connections" ? "active" : "") %>"><a href="<%= baseUrl %>/connections">Connections</a></li>
-                <li class="<%= (pageTitle && pageTitle == "Users" ? "active" : "") %>"><a href="<%= baseUrl %>/users">Users</a></li>
-                <li class="<%= (pageTitle && pageTitle == "Configuration" ? "active" : "") %>"><a href="<%= baseUrl %>/configs">Configuration</a></li>
-                */}
+                      return <Nav className="navbar-right">
 
-                {/*<NavItem eventKey={2} href="#">Link</NavItem>
-                <NavDropdown eventKey={3} title="Dropdown" id="basic-nav-dropdown">
-                  <MenuItem eventKey={3.1}>Action</MenuItem>
-                  <MenuItem eventKey={3.2}>Another action</MenuItem>
-                  <MenuItem eventKey={3.3}>Something else here</MenuItem>
-                  <MenuItem divider />
-                  <MenuItem eventKey={3.3}>Separated link</MenuItem>
-                </NavDropdown>*/}
+                          <NavDropdown eventKey={5} title={this.props.user.email.split('@')[0]} id="basic-nav-dropdown">
+                            <MenuItem eventKey={5.1} href="/signout">Sign Out</MenuItem>
+                            <MenuItem divider />
+                            <MenuItem eventKey={5.2} href="/about">About SqlPad</MenuItem>
+                          </NavDropdown>
 
-            {/*<div class="navbar-header">
-              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-              </button>
-            </div>*/}
-            
-            {/*<div class="navbar-collapse collapse">
-              <ul class="nav navbar-nav">
-                <li class="<%= (pageTitle && pageTitle == "Queries" ? "active" : "") %>"><a href="<%= baseUrl %>/queries?createdBy=<%= encodeURIComponent(user.email) %>">Queries</a></li>
-                <li><a href="<%= baseUrl %>/queries/new">New Query</a></li>
-                <% if (isAuthenticated && user.admin) { %>
-                <li class="<%= (pageTitle && pageTitle == "Connections" ? "active" : "") %>"><a href="<%= baseUrl %>/connections">Connections</a></li>
-                <li class="<%= (pageTitle && pageTitle == "Users" ? "active" : "") %>"><a href="<%= baseUrl %>/users">Users</a></li>
-                <li class="<%= (pageTitle && pageTitle == "Configuration" ? "active" : "") %>"><a href="<%= baseUrl %>/configs">Configuration</a></li>
-                <% } %>
-              </ul>
-              
-              <ul class="nav navbar-nav navbar-right">
-                <% if (isAuthenticated) { %>
-                  <li class="dropdown">
-                      <a href="#" class="dropdown-toggle" data-toggle="dropdown"><%= user.email.split('@')[0] %> <b class="caret"></b></a>
-                       <ul class="dropdown-menu">
-                         <li><a href="<%= baseUrl %>/signout">Sign Out</a></li>
-                         <li role="presentation" class="divider"></li>
-                         <li><a href="#" data-toggle="modal" data-target="#aboutModal">About SqlPad</a></li>
-                       </ul>                       
-                  </li>
-                <% } else { %>
-                  <li><a href="<%= baseUrl %>/signin">Sign In</a></li>
-                  <li><a href="<%= baseUrl %>/signup">Sign Up</a></li>
-                <% } %>
-              </ul>
-            </div>*/}
-            
-          </div>
-        </div>
+                        </Nav>
+                        
+                    } else {
+
+                       return <Nav className="navbar-right"><NavItem href="signin">Sign In</NavItem>
+                                <NavItem href="signup">Sign Up</NavItem>
+                            </Nav>
+
+                    }
+
+                })()}
+
+          </Navbar>
 
           <div className="container-fluid">
               <div className="row">
@@ -131,14 +87,16 @@ module.exports = React.createClass({
               </div>
           </div>
 
-          <script src="javascripts/vendor/underscore-min.js"></script>
           <script src="javascripts/vendor/jquery-2.2.0.min.js"></script>
-          <script src="javascripts/vendor/bootstrap.min.js"></script>
-          <script src="javascripts/vendor/codemirror/codemirror.js" type="text/javascript" charset="utf-8"></script>
-          <script src="javascripts/vendor/codemirror/sql.js" type="text/javascript" charset="utf-8"></script>
+          <script src="javascripts/vendor/underscore-min.js"></script>
+          
+          {/*<script src="javascripts/vendor/bootstrap.min.js"></script>
 
-          <script src="javascripts/vendor/codemirror/addon/hint/show-hint.js" type="text/javascript" charset="utf-8"></script>
-          <script src="javascripts/vendor/codemirror/addon/hint/sql-hint.js" type="text/javascript" charset="utf-8"></script>
+          <script src="javascripts/vendor/codemirror/codemirror.js" type="text/javascript"></script>
+          <script src="javascripts/vendor/codemirror/sql.js" type="text/javascript"></script>
+
+          <script src="javascripts/vendor/codemirror/addon/hint/show-hint.js" type="text/javascript"></script>
+          <script src="javascripts/vendor/codemirror/addon/hint/sql-hint.js" type="text/javascript"></script>
 
           <script src="javascripts/vendor/jquery.event.drag-2.2.js"></script>
           <script src="javascripts/vendor/slickgrid/slick.core.js"></script>
@@ -148,8 +106,9 @@ module.exports = React.createClass({
           <script src="javascripts/vendor/typeahead.bundle.js"></script>
           <script src="javascripts/vendor/bootstrap-tagsinput/bootstrap-tagsinput.min.js"></script>
           <script src="javascripts/vendor/tauCharts/tauCharts.min.js"></script>
+         
+          */}
           <script src="javascripts/vendor/ZeroClipboard/ZeroClipboard.min.js"></script>
-          
           <script src="javascripts/browserified.js"></script>
 
           <script>

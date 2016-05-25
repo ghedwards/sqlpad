@@ -80,16 +80,17 @@ module.exports = function (app, router) {
             });
             //queries = _.sortBy(queries, 'timeDiff');
             if (req.query && req.query.format && req.query.format === "table-only") {
-                res.render('queries-table', {
+                res.render('/queries-table', {
                     pageTitle: "Queries",
                     queries: queries,
                     filter: filter
                 });
             } else {
-                res.render('queries', {
+                res.render('/queries', {
                     pageTitle: "Queries",
                     queries: queries,
-                    filter: filter
+                    filter: filter,
+                    isAuthenticated: res.locals.isAuthenticated
                 });
             }
 

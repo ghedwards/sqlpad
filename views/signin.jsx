@@ -2,32 +2,28 @@
 
 var React = require('react');
 
-import Layout from '../views/layout.jsx';
-
 module.exports = React.createClass({
   displayName: 'SignIn',
 
   render: function render() { 
     return (
-      <Layout>
       <div className="signin">
         <h2>SqlPad</h2>
           <div>
-          <form className="form-signin" role="form" action="/signin" method="post">
+          <form className="form-signin" action="/signin" method="post">
             <input
+                id="email"
                 name="email"
-                value=""
-                type="email"
+                type="text"
                 className="form-control top-field"
-                placeholder="Email address"
                 required
                 autofocus />
             <input
+                id="password"
                 name="password"
                 value=""
                 type="password"
                 className="form-control bottom-field"
-                placeholder="Password"
                 required />
             <br />
             <button className="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
@@ -39,7 +35,6 @@ module.exports = React.createClass({
           </div>
         </div>
         </div>
-      </Layout>
     );
   }
 });

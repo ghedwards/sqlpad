@@ -11,9 +11,9 @@ module.exports = function (app, router) {
         /*    Sign Up
         ============================================================================= */
         function signupBodyToLocals (req, res, next) {
-            res.locals.password = req.body.password || '';
-            res.locals.passwordConfirmation = req.body.passwordConfirmation || '';
-            res.locals.email = req.body.email || '';
+                res.locals.password = req.body.password || '';
+                res.locals.passwordConfirmation = req.body.passwordConfirmation || '';
+                res.locals.email = req.body.email || '';
             next();
         }
         
@@ -28,7 +28,7 @@ module.exports = function (app, router) {
         }
         
         router.get('/signup', notIfSignedIn, signupBodyToLocals, function (req, res) {
-            res.render('signup');
+            res.render(req.url);
         });
         
         router.post('/signup', signupBodyToLocals, function (req, res) {
@@ -145,18 +145,18 @@ module.exports = function (app, router) {
     /*    Sign In / Out
     ============================================================================= */
     function signinBodyToLocals (req, res, next) {
-        res.locals.email = req.body.email || '';
-        res.locals.password = req.body.password || '';
+            res.locals.email = req.body.email || '';
+            res.locals.password = req.body.password || '';
         next();
     }
 
     router.get('/signin', signinBodyToLocals, function (req, res) {
-        res.render('signin', { strategies: passport._strategies });
+        res.render(req.url, { strategies: passport._strategies });
     });    
     
     router.get('/signout', function (req, res) {
         req.session = null;
-        res.redirect(baseUrl + '/');
+        res.redirect(baseUrl + '/signin');
     });
     
 };

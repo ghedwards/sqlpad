@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 var express = require('express');
-var router = express.Router();
+var router;
 var http = require('http');
 var path = require('path');
 var updateNotifier = require('update-notifier');
@@ -61,19 +61,30 @@ var morgan = require('morgan');
 var passport = require('passport');
 var connectFlash = require('connect-flash');
 var errorhandler = require('errorhandler');
+var reactroutes = require('./routes/routes.jsx');
 
 app.locals.title = 'SqlPad';
 app.locals.version = packageJson.version;
 
 if ( config.engine === 'react' ) {
-    engine = reactEngine.server.create({});
+
+    router = app;
+
+    engine = reactEngine.server.create({
+        routes:reactroutes,
+        routesFilePath: path.join(__dirname, 'routes/routes.jsx')
+    });
+
     app.engine('.jsx', engine);
-    app.set('view', reactEngine.expressView);
-    app.set('view engine', 'jsx');
-    app.set('packageJson', packageJson);
     app.set('views', path.join(__dirname, 'views'));
+    app.set('view engine', 'jsx');
+    app.set('view', reactEngine.expressView);
+
 } else {
     app.set('view engine', 'ejs');    
+
+    router = express.Router();
+    
 }
 
 if (process.env.NODE_ENV === 'development') {
@@ -93,7 +104,9 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(config.baseUrl, express.static(path.join(__dirname, 'public')));
 if (app.get('dev')) app.use(morgan('dev'));
-app.use(function (req, res, next) {
+
+app[config.engine === 'react'?'use':'get'](function (req, res, next) {
+
     // Boostrap res.locals with any common variables
     res.locals.errors = req.flash('error');
     res.locals.message = null;
@@ -129,7 +142,7 @@ app.use(function (req, res, next) {
       next();
     });
 });
-app.use(function (req, res, next) {
+app[config.engine === 'react'?'use':'get'](function (req, res, next) {
     // if not signed in redirect to sign in page
     if (req.isAuthenticated()) {
         next();
@@ -161,25 +174,25 @@ app.use('/config', mustBeAdmin);
 
 
 
-/*  Routes begins here
+    /*  Routes begins here
 
-    The modules in ./routes/ are just functions that take the app object
-    and build out the routes.
+        The modules in ./routes/ are just functions that take the app object
+        and build out the routes.
 
-    /            (redirects to queries or connections)
-    /signup      (open to everyone, but you gotta be whitelisted to use it)
-    /signin      (default if not logged in)
-    /queries     (lists queries)
-    /connections (list/create/update/delete connections)
+        /            (redirects to queries or connections)
+        /signup      (open to everyone, but you gotta be whitelisted to use it)
+        /signin      (default if not logged in)
+        /queries     (lists queries)
+        /connections (list/create/update/delete connections)
 
-    Generally, I try to follow the standard convention.
-    But sometimes I don't though:
+        Generally, I try to follow the standard convention.
+        But sometimes I don't though:
 
-    create → POST    /collection
-    read → GET       /collection[/id]
-    update → PUT     /collection/id
-    delete → DELETE  /collection/id
-============================================================================= */
+        create → POST    /collection
+        read → GET       /collection[/id]
+        update → PUT     /collection/id
+        delete → DELETE  /collection/id
+    ============================================================================= */
 require('./routes/oauth.js')(app, passport, router);
 require('./routes/homepage.js')(app, router);
 require('./routes/onboarding.js')(app, router);
@@ -192,27 +205,49 @@ require('./routes/schema-info.js')(app, router);
 require('./routes/configs.js')(app, router);
 require('./routes/tags.js')(app, router);
 
-app.use(config.baseUrl, router);
+if ( config.engine === 'react' ) {
 
-/*	Start the Server
-============================================================================= */
-var b = browserify({
-    entries: [
-        './client-js/main.js'],
+    app.use(config.baseUrl, function(req, res, next) {
 
-    cache: {},
-    packageCache: {},
-    plugin: [watchify],
-    transform: ["browserify-shim"]
-});
+        res.render(req.url, {});
 
-b.on('update', function(){
+    });
+    /*  Start the Server
+    ============================================================================= */
+    var b = browserify({
+
+        entries: ['./client-js/main.js'],
+        cache: {},
+        packageCache: {},
+        plugin: [watchify]
+
+    });
+
+    b.on('update', function(){
+        
+        b.transform("babelify", {presets: ["es2015", "react"]}).bundle().on("error",function(err){ 
+            // print the error (can replace with gulp-util)
+            console.log(err);
+            // end this stream
+            //this.emit('end');
+        }).pipe(fs.createWriteStream('./public/javascripts/browserified.js'));
+
+    });
+
+    b.transform("babelify", {presets: ["es2015", "react"]}).bundle().on("error",function(err){ 
+        // print the error (can replace with gulp-util)
+        console.log(err);
+        // end this stream
+        //this.emit('end');
+    }).pipe(fs.createWriteStream('./public/javascripts/browserified.js'));
     
-    b.bundle().pipe(fs.createWriteStream('./public/javascripts/browserified.js'));
+    //app.use(config.baseUrl, router);
 
-});
+} else {
 
-b.bundle().pipe(fs.createWriteStream('./public/javascripts/browserified.js'));
+    app.use(config.baseUrl, router);
+
+}
 
 http.createServer(app).listen(app.get('port'), app.get('ip'), function(){
     console.log('\nWelcome to ' + app.locals.title + '!. Visit http://'+(app.get('ip') == '0.0.0.0' ? 'localhost' : app.get('ip')) + ':' + app.get('port') + app.get('baseUrl') + ' to get started');
