@@ -40,7 +40,7 @@
     "babel-preset-react": "^6.5.0",
     "bcrypt-nodejs": "0.0.3",
     "body-parser": "~1.15.1",
-    "codemirror": "^5.14.2",
+    "codemirror": "^5.15.2",
     "connect-flash": "^0.1.1",
     "cookie-parser": "~1.4.2",
     "cookie-session": "1.x.x",
@@ -72,13 +72,15 @@
     "react-dom": "^15.1.0",
     "react-engine": "^3.4.1",
     "react-router": "^2.4.1",
+    "reactify": "^1.1.1",
     "request": "^2.58.0",
     "sanitize-filename": "1.x.x",
     "serve-favicon": "2.x.x",
     "ua-parser": "0.3.x",
     "update-notifier": "^0.7.0",
     "uuid": "^2.0.1",
-    "vertica": "0.5.x"
+    "vertica": "0.5.x",
+    "whatwg-fetch": "^1.0.0"
   },
   "main": "server.js",
   "bin": {
@@ -107,7 +109,7 @@
   "browserify-shim": {
     "jquery": "global:$",
     "ace": "global:ace",
-    "codemirror": "global:codemirror",
+    "codemirror": "global:CodeMirror",
     "Slick": "global:Slick",
     "d3": "global:d3",
     "saveSvgAsPng": "global:saveSvgAsPng",

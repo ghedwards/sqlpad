@@ -2,6 +2,7 @@
 'use strict';
 
 var React = require('react');
+var fetch = require("whatwg-fetch");
 var Navbar = require('react-bootstrap').Navbar;
 var Nav = require('react-bootstrap').Nav;
 var NavItem = require('react-bootstrap').NavItem;
@@ -23,12 +24,13 @@ module.exports = React.createClass({
 
             <link rel="stylesheet" href="/stylesheets/vendor/codemirror/codemirror.css" type="text/css"/>
             <link rel="stylesheet" href="/stylesheets/vendor/codemirror/addon/hint/show-hint.css" />
+            <link rel="stylesheet" href="/stylesheets/vendor/fontawesome/css/font-awesome.min.css" type="text/css"/>
 {/*
             <link rel="stylesheet" href="javascripts/vendor/slickgrid/slick.grid.css" type="text/css"/>
             <link rel="stylesheet" href="javascripts/vendor/slickgrid/slick-default-theme.css" type="text/css"/>
             <link rel="stylesheet" href="javascripts/vendor/bootstrap-tagsinput/bootstrap-tagsinput.css" type="text/css"/>
             <link rel="stylesheet" href="javascripts/vendor/tauCharts/tauCharts.min.css" type="text/css"/>
-            <link rel="stylesheet" href="stylesheets/vendor/fontawesome/css/font-awesome.min.css" type="text/css"/>*/}
+            */}
 
             <link rel="stylesheet" href="/stylesheets/style.css" />
 
@@ -90,11 +92,7 @@ module.exports = React.createClass({
           {/*<script src="/javascripts/vendor/jquery-2.2.0.min.js"></script>
           <script src="/javascripts/vendor/underscore-min.js"></script>
           
-           <script src="/javascripts/vendor/codemirror/codemirror.js" type="text/javascript"></script>
-          <script src="/javascripts/vendor/codemirror/sql.js" type="text/javascript"></script>
-
-          <script src="/javascripts/vendor/codemirror/addon/hint/show-hint.js" type="text/javascript"></script>
-          <script src="/javascripts/vendor/codemirror/addon/hint/sql-hint.js" type="text/javascript"></script>
+           
           <script src="javascripts/vendor/bootstrap.min.js"></script>
 
          
@@ -109,7 +107,15 @@ module.exports = React.createClass({
           <script src="javascripts/vendor/tauCharts/tauCharts.min.js"></script>
          
           
-          <script src="/javascripts/vendor/ZeroClipboard/ZeroClipboard.min.js"></script>*/}
+          <script src="/javascripts/vendor/ZeroClipboard/ZeroClipboard.min.js"></script>
+
+          
+
+          <script src="/javascripts/vendor/codemirror/addon/hint/show-hint.js" type="text/javascript"></script>
+          <script src="/javascripts/vendor/codemirror/addon/hint/sql-hint.js" type="text/javascript"></script>*/}
+
+          <script src="/javascripts/vendor/codemirror/codemirror.js" type="text/javascript"></script>
+          <script src="/javascripts/vendor/codemirror/sql.js" type="text/javascript"></script>
           <script src="/javascripts/browserified.js"></script>
 
           <script>

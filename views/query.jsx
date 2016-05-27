@@ -4,8 +4,105 @@ var React = require('react');
 var Nav = require('react-bootstrap').Nav;
 var NavItem = require('react-bootstrap').NavItem;
 
+var SqlEditor = require('./sqleditor.jsx');
+var SqlResults = require('./sqlresults.jsx');
+var SchemaInfo = require('./schemainfo.jsx');
+
+require("whatwg-fetch");
+
 module.exports = React.createClass({
   displayName: 'Query',
+
+  getInitialState: function() {
+    return {
+      records: [],
+      schematree: {},
+      columns: {},
+      connectionId:"",
+      queryText:(this.props.query ? this.props.query.queryText : "")
+    }
+  },
+
+  fetchSchemaTree : function(){
+    
+    if (this.state.connectionId) {
+        //  var params = {
+        //     reload: typeof reload != 'undefined' ? reload : false
+        // };
+        var self = this;
+        fetch("/schema-info/" + this.state.connectionId, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                reload: true,
+                connectionId: this.state.connectionId})
+
+        }).then(function(response) {
+            return response.json()
+        }).then(function(json) {
+            self.setState({schematree: json});
+        });
+
+    } else {
+
+        this.setState({schematree: []});
+
+    }
+
+  },
+
+  fetchQuery : function() {
+     
+    var self = this;
+
+       fetch('/run-query', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                queryText: this.state.queryText,
+                connectionId: this.state.connectionId,
+                cacheKey: "",
+                queryName: ""})
+        }).then(function(response) {
+            return response.json()
+        }).then(function(json) {
+            self.setState({columns:json.meta,records:json.results});
+        }).catch(function(ex) {
+            console.log('parsing failed', ex);
+        });
+
+    },
+
+    handleConnectionIdChange : function(event){
+
+        this.setState({connectionId: event.target.value},function(){
+
+            this.fetchSchemaTree();
+
+        }); 
+
+
+    },
+
+    handleQueryTextChange : function(val){
+
+        this.setState({queryText: val});
+
+    },
+
+    handleClickRunQuery: function(event) {
+        
+        event.preventDefault();
+
+        this.fetchQuery();
+
+    },
 
   render: function render() { 
 
@@ -44,7 +141,7 @@ module.exports = React.createClass({
                     <form>
                         <div className="form-group">
                             <label className="control-label" htmlFor="connection">Connection</label>
-                            <select id="connection" name="connection" className="form-control input-sm" defaultValue={this.props.query ? this.props.query.connection : ""}>
+                            <select id="connection" onChange={this.handleConnectionIdChange} name="connection" className="form-control input-sm" defaultValue={this.props.query ? this.props.query.connection : ""}>
                                 <option value="">Choose a Connection...</option>
                                 {this.props.connections ? this.props.connections.map(function(connection) {
                                     return (
@@ -55,7 +152,7 @@ module.exports = React.createClass({
                                   }) : ''}
                             </select>
                         </div>
-                        <button id="btn-run-query" className="btn btn-primary btn-sm btn-block">
+                        <button id="btn-run-query" onClick={this.handleClickRunQuery} className="btn btn-primary btn-sm btn-block">
                             <span className="shortcut-letter">R</span>un Query
                         </button>
                         <button id="btn-link-to-table" className="btn btn-default btn-sm btn-block" >
@@ -76,48 +173,30 @@ module.exports = React.createClass({
                     
                     
                     <hr />
-                    <div id="panel-db-info-container">
-                        <button id="btn-reload-schema" className="btn btn-default btn-sm" style={{display: "none"}}>
-                            <span className="glyphicon glyphicon-refresh"></span>
-                        </button>
-                        <div id="panel-db-info"></div>
-                    </div>
+
+
+                    <SchemaInfo 
+                        schematree={this.state.schematree} 
+                    />
+
                 </div>
+
                 <div className="tab-pane-main">
-                    <div className="panel-editor">
-                        {/* <div id="ace-editor"><%- query.queryText || "" %></div> */}
-                        <textarea id="codemirror-editor" defaultValue={this.props.query ? this.props.query.queryText : "" || ""}></textarea>
-                    </div>
-                    <div id="panel-result">
-                        <div id="panel-result-header">
-                            <span className="hide-while-running" style={{display:"none"}}>
-                                <span className="panel-result-header-label">Query Run Time: </span>
-                                <span className="panel-result-header-value" id="server-run-time"></span>
-                                <span className="panel-result-header-label">Rows: </span>
-                                <span className="panel-result-header-value" id="rowcount"></span>
-
-                                {(() => {
-
-                                  if ( this.props.allowDownload === true ) {
-
-                                    return <span><span className="panel-result-header-label">Download: </span>
-                                    <a id="csv-download-link" className="result-download-link" href={'/download-results/'+this.props.cacheKey+'.csv'}>.csv</a>
-                                    <a id="xlsx-download-link" className="result-download-link" href={'/download-results/'+this.props.cacheKey+'.xlsx'}>.xlsx</a></span>
-                                      
-                                  } else {
-
-                                     return ""
-
-                                  }
-
-                                })()}
-
-                                <span className="panel-result-header-label incomplete-notification hidden">Incomplete Data (hit record limit)</span>
-                            </span>
-                        </div>
-                        <div id="result-slick-grid"></div>
-                        <div id="run-result-notification"></div>
-                    </div>
+                    
+                    <SqlEditor 
+                        onChange={this.handleQueryTextChange} 
+                        defaultValue={this.state.queryText} 
+                        id="codemirror-editor"
+                    />
+                    
+                    <SqlResults 
+                        queryText={this.state.queryText} 
+                        connectionId={this.state.connectionId} 
+                        records={this.state.records}
+                        columns={this.state.columns}
+                        allowDownload={this.props.allowDownload}
+                    />
+                    
                 </div>
             </div>
 

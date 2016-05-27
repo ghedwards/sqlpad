@@ -24,6 +24,8 @@ var Routes = require('../routes/routes.jsx');
 // import the react-engine's client side booter
 var ReactEngineClient = require('react-engine/lib/client');
 var QueriesTable = require('../views/queries-table.jsx');
+var CodeMirror = require('codemirror');
+var Fetch = require('whatwg-fetch');
 
 // boot options
 var options = {

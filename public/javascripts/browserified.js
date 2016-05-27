@@ -1,4 +1,5 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function (global){
 'use strict';
 
 //  This is where all the client side js stuff is required so it can be bundled
@@ -27,6 +28,8 @@ var Routes = require('../routes/routes.jsx');
 // import the react-engine's client side booter
 var ReactEngineClient = require('react-engine/lib/client');
 var QueriesTable = require('../views/queries-table.jsx');
+var CodeMirror = (typeof window !== "undefined" ? window['CodeMirror'] : typeof global !== "undefined" ? global['CodeMirror'] : null);
+var Fetch = require('whatwg-fetch');
 
 // boot options
 var options = {
@@ -44,7 +47,8 @@ document.addEventListener('DOMContentLoaded', function onLoad() {
   ReactEngineClient.boot(options);
 });
 
-},{"../routes/routes.jsx":534,"../views/queries-table.jsx":542,"react-engine/lib/client":268}],2:[function(require,module,exports){
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"../routes/routes.jsx":535,"../views/queries-table.jsx":543,"react-engine/lib/client":268,"whatwg-fetch":534}],2:[function(require,module,exports){
 module.exports = { "default": require("core-js/library/fn/object/assign"), __esModule: true };
 },{"core-js/library/fn/object/assign":13}],3:[function(require,module,exports){
 module.exports = { "default": require("core-js/library/fn/object/create"), __esModule: true };
@@ -48060,6 +48064,441 @@ module.exports = warning;
 
 }).call(this,require('_process'))
 },{"_process":162}],534:[function(require,module,exports){
+(function(self) {
+  'use strict';
+
+  if (self.fetch) {
+    return
+  }
+
+  var support = {
+    searchParams: 'URLSearchParams' in self,
+    iterable: 'Symbol' in self && 'iterator' in Symbol,
+    blob: 'FileReader' in self && 'Blob' in self && (function() {
+      try {
+        new Blob()
+        return true
+      } catch(e) {
+        return false
+      }
+    })(),
+    formData: 'FormData' in self,
+    arrayBuffer: 'ArrayBuffer' in self
+  }
+
+  function normalizeName(name) {
+    if (typeof name !== 'string') {
+      name = String(name)
+    }
+    if (/[^a-z0-9\-#$%&'*+.\^_`|~]/i.test(name)) {
+      throw new TypeError('Invalid character in header field name')
+    }
+    return name.toLowerCase()
+  }
+
+  function normalizeValue(value) {
+    if (typeof value !== 'string') {
+      value = String(value)
+    }
+    return value
+  }
+
+  // Build a destructive iterator for the value list
+  function iteratorFor(items) {
+    var iterator = {
+      next: function() {
+        var value = items.shift()
+        return {done: value === undefined, value: value}
+      }
+    }
+
+    if (support.iterable) {
+      iterator[Symbol.iterator] = function() {
+        return iterator
+      }
+    }
+
+    return iterator
+  }
+
+  function Headers(headers) {
+    this.map = {}
+
+    if (headers instanceof Headers) {
+      headers.forEach(function(value, name) {
+        this.append(name, value)
+      }, this)
+
+    } else if (headers) {
+      Object.getOwnPropertyNames(headers).forEach(function(name) {
+        this.append(name, headers[name])
+      }, this)
+    }
+  }
+
+  Headers.prototype.append = function(name, value) {
+    name = normalizeName(name)
+    value = normalizeValue(value)
+    var list = this.map[name]
+    if (!list) {
+      list = []
+      this.map[name] = list
+    }
+    list.push(value)
+  }
+
+  Headers.prototype['delete'] = function(name) {
+    delete this.map[normalizeName(name)]
+  }
+
+  Headers.prototype.get = function(name) {
+    var values = this.map[normalizeName(name)]
+    return values ? values[0] : null
+  }
+
+  Headers.prototype.getAll = function(name) {
+    return this.map[normalizeName(name)] || []
+  }
+
+  Headers.prototype.has = function(name) {
+    return this.map.hasOwnProperty(normalizeName(name))
+  }
+
+  Headers.prototype.set = function(name, value) {
+    this.map[normalizeName(name)] = [normalizeValue(value)]
+  }
+
+  Headers.prototype.forEach = function(callback, thisArg) {
+    Object.getOwnPropertyNames(this.map).forEach(function(name) {
+      this.map[name].forEach(function(value) {
+        callback.call(thisArg, value, name, this)
+      }, this)
+    }, this)
+  }
+
+  Headers.prototype.keys = function() {
+    var items = []
+    this.forEach(function(value, name) { items.push(name) })
+    return iteratorFor(items)
+  }
+
+  Headers.prototype.values = function() {
+    var items = []
+    this.forEach(function(value) { items.push(value) })
+    return iteratorFor(items)
+  }
+
+  Headers.prototype.entries = function() {
+    var items = []
+    this.forEach(function(value, name) { items.push([name, value]) })
+    return iteratorFor(items)
+  }
+
+  if (support.iterable) {
+    Headers.prototype[Symbol.iterator] = Headers.prototype.entries
+  }
+
+  function consumed(body) {
+    if (body.bodyUsed) {
+      return Promise.reject(new TypeError('Already read'))
+    }
+    body.bodyUsed = true
+  }
+
+  function fileReaderReady(reader) {
+    return new Promise(function(resolve, reject) {
+      reader.onload = function() {
+        resolve(reader.result)
+      }
+      reader.onerror = function() {
+        reject(reader.error)
+      }
+    })
+  }
+
+  function readBlobAsArrayBuffer(blob) {
+    var reader = new FileReader()
+    reader.readAsArrayBuffer(blob)
+    return fileReaderReady(reader)
+  }
+
+  function readBlobAsText(blob) {
+    var reader = new FileReader()
+    reader.readAsText(blob)
+    return fileReaderReady(reader)
+  }
+
+  function Body() {
+    this.bodyUsed = false
+
+    this._initBody = function(body) {
+      this._bodyInit = body
+      if (typeof body === 'string') {
+        this._bodyText = body
+      } else if (support.blob && Blob.prototype.isPrototypeOf(body)) {
+        this._bodyBlob = body
+      } else if (support.formData && FormData.prototype.isPrototypeOf(body)) {
+        this._bodyFormData = body
+      } else if (support.searchParams && URLSearchParams.prototype.isPrototypeOf(body)) {
+        this._bodyText = body.toString()
+      } else if (!body) {
+        this._bodyText = ''
+      } else if (support.arrayBuffer && ArrayBuffer.prototype.isPrototypeOf(body)) {
+        // Only support ArrayBuffers for POST method.
+        // Receiving ArrayBuffers happens via Blobs, instead.
+      } else {
+        throw new Error('unsupported BodyInit type')
+      }
+
+      if (!this.headers.get('content-type')) {
+        if (typeof body === 'string') {
+          this.headers.set('content-type', 'text/plain;charset=UTF-8')
+        } else if (this._bodyBlob && this._bodyBlob.type) {
+          this.headers.set('content-type', this._bodyBlob.type)
+        } else if (support.searchParams && URLSearchParams.prototype.isPrototypeOf(body)) {
+          this.headers.set('content-type', 'application/x-www-form-urlencoded;charset=UTF-8')
+        }
+      }
+    }
+
+    if (support.blob) {
+      this.blob = function() {
+        var rejected = consumed(this)
+        if (rejected) {
+          return rejected
+        }
+
+        if (this._bodyBlob) {
+          return Promise.resolve(this._bodyBlob)
+        } else if (this._bodyFormData) {
+          throw new Error('could not read FormData body as blob')
+        } else {
+          return Promise.resolve(new Blob([this._bodyText]))
+        }
+      }
+
+      this.arrayBuffer = function() {
+        return this.blob().then(readBlobAsArrayBuffer)
+      }
+
+      this.text = function() {
+        var rejected = consumed(this)
+        if (rejected) {
+          return rejected
+        }
+
+        if (this._bodyBlob) {
+          return readBlobAsText(this._bodyBlob)
+        } else if (this._bodyFormData) {
+          throw new Error('could not read FormData body as text')
+        } else {
+          return Promise.resolve(this._bodyText)
+        }
+      }
+    } else {
+      this.text = function() {
+        var rejected = consumed(this)
+        return rejected ? rejected : Promise.resolve(this._bodyText)
+      }
+    }
+
+    if (support.formData) {
+      this.formData = function() {
+        return this.text().then(decode)
+      }
+    }
+
+    this.json = function() {
+      return this.text().then(JSON.parse)
+    }
+
+    return this
+  }
+
+  // HTTP methods whose capitalization should be normalized
+  var methods = ['DELETE', 'GET', 'HEAD', 'OPTIONS', 'POST', 'PUT']
+
+  function normalizeMethod(method) {
+    var upcased = method.toUpperCase()
+    return (methods.indexOf(upcased) > -1) ? upcased : method
+  }
+
+  function Request(input, options) {
+    options = options || {}
+    var body = options.body
+    if (Request.prototype.isPrototypeOf(input)) {
+      if (input.bodyUsed) {
+        throw new TypeError('Already read')
+      }
+      this.url = input.url
+      this.credentials = input.credentials
+      if (!options.headers) {
+        this.headers = new Headers(input.headers)
+      }
+      this.method = input.method
+      this.mode = input.mode
+      if (!body) {
+        body = input._bodyInit
+        input.bodyUsed = true
+      }
+    } else {
+      this.url = input
+    }
+
+    this.credentials = options.credentials || this.credentials || 'omit'
+    if (options.headers || !this.headers) {
+      this.headers = new Headers(options.headers)
+    }
+    this.method = normalizeMethod(options.method || this.method || 'GET')
+    this.mode = options.mode || this.mode || null
+    this.referrer = null
+
+    if ((this.method === 'GET' || this.method === 'HEAD') && body) {
+      throw new TypeError('Body not allowed for GET or HEAD requests')
+    }
+    this._initBody(body)
+  }
+
+  Request.prototype.clone = function() {
+    return new Request(this)
+  }
+
+  function decode(body) {
+    var form = new FormData()
+    body.trim().split('&').forEach(function(bytes) {
+      if (bytes) {
+        var split = bytes.split('=')
+        var name = split.shift().replace(/\+/g, ' ')
+        var value = split.join('=').replace(/\+/g, ' ')
+        form.append(decodeURIComponent(name), decodeURIComponent(value))
+      }
+    })
+    return form
+  }
+
+  function headers(xhr) {
+    var head = new Headers()
+    var pairs = (xhr.getAllResponseHeaders() || '').trim().split('\n')
+    pairs.forEach(function(header) {
+      var split = header.trim().split(':')
+      var key = split.shift().trim()
+      var value = split.join(':').trim()
+      head.append(key, value)
+    })
+    return head
+  }
+
+  Body.call(Request.prototype)
+
+  function Response(bodyInit, options) {
+    if (!options) {
+      options = {}
+    }
+
+    this.type = 'default'
+    this.status = options.status
+    this.ok = this.status >= 200 && this.status < 300
+    this.statusText = options.statusText
+    this.headers = options.headers instanceof Headers ? options.headers : new Headers(options.headers)
+    this.url = options.url || ''
+    this._initBody(bodyInit)
+  }
+
+  Body.call(Response.prototype)
+
+  Response.prototype.clone = function() {
+    return new Response(this._bodyInit, {
+      status: this.status,
+      statusText: this.statusText,
+      headers: new Headers(this.headers),
+      url: this.url
+    })
+  }
+
+  Response.error = function() {
+    var response = new Response(null, {status: 0, statusText: ''})
+    response.type = 'error'
+    return response
+  }
+
+  var redirectStatuses = [301, 302, 303, 307, 308]
+
+  Response.redirect = function(url, status) {
+    if (redirectStatuses.indexOf(status) === -1) {
+      throw new RangeError('Invalid status code')
+    }
+
+    return new Response(null, {status: status, headers: {location: url}})
+  }
+
+  self.Headers = Headers
+  self.Request = Request
+  self.Response = Response
+
+  self.fetch = function(input, init) {
+    return new Promise(function(resolve, reject) {
+      var request
+      if (Request.prototype.isPrototypeOf(input) && !init) {
+        request = input
+      } else {
+        request = new Request(input, init)
+      }
+
+      var xhr = new XMLHttpRequest()
+
+      function responseURL() {
+        if ('responseURL' in xhr) {
+          return xhr.responseURL
+        }
+
+        // Avoid security warnings on getResponseHeader when not allowed by CORS
+        if (/^X-Request-URL:/m.test(xhr.getAllResponseHeaders())) {
+          return xhr.getResponseHeader('X-Request-URL')
+        }
+
+        return
+      }
+
+      xhr.onload = function() {
+        var options = {
+          status: xhr.status,
+          statusText: xhr.statusText,
+          headers: headers(xhr),
+          url: responseURL()
+        }
+        var body = 'response' in xhr ? xhr.response : xhr.responseText
+        resolve(new Response(body, options))
+      }
+
+      xhr.onerror = function() {
+        reject(new TypeError('Network request failed'))
+      }
+
+      xhr.ontimeout = function() {
+        reject(new TypeError('Network request failed'))
+      }
+
+      xhr.open(request.method, request.url, true)
+
+      if (request.credentials === 'include') {
+        xhr.withCredentials = true
+      }
+
+      if ('responseType' in xhr && support.blob) {
+        xhr.responseType = 'blob'
+      }
+
+      request.headers.forEach(function(value, name) {
+        xhr.setRequestHeader(name, value)
+      })
+
+      xhr.send(typeof request._bodyInit === 'undefined' ? null : request._bodyInit)
+    })
+  }
+  self.fetch.polyfill = true
+})(typeof self !== 'undefined' ? self : this);
+
+},{}],535:[function(require,module,exports){
 'use strict';
 
 var _react = require('react');
@@ -48143,7 +48582,7 @@ module.exports = _react2.default.createElement(
   )
 );
 
-},{"../views/404.jsx":535,"../views/config.jsx":536,"../views/configs.jsx":537,"../views/connection.jsx":538,"../views/connections.jsx":539,"../views/home.jsx":540,"../views/layout.jsx":541,"../views/queries-table.jsx":542,"../views/queries.jsx":543,"../views/query.jsx":544,"../views/signin.jsx":545,"../views/signup.jsx":546,"../views/users.jsx":547,"react":528,"react-router":357}],535:[function(require,module,exports){
+},{"../views/404.jsx":536,"../views/config.jsx":537,"../views/configs.jsx":538,"../views/connection.jsx":539,"../views/connections.jsx":540,"../views/home.jsx":541,"../views/layout.jsx":542,"../views/queries-table.jsx":543,"../views/queries.jsx":544,"../views/query.jsx":545,"../views/signin.jsx":547,"../views/signup.jsx":548,"../views/users.jsx":551,"react":528,"react-router":357}],536:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -48162,7 +48601,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"react":528}],536:[function(require,module,exports){
+},{"react":528}],537:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -48230,7 +48669,7 @@ module.exports = React.createClass({
         );
     } });
 
-},{"moment":160,"react":528}],537:[function(require,module,exports){
+},{"moment":160,"react":528}],538:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -48341,7 +48780,7 @@ module.exports = React.createClass({
         );
     } });
 
-},{"moment":160,"react":528}],538:[function(require,module,exports){
+},{"moment":160,"react":528}],539:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -48352,12 +48791,193 @@ module.exports = React.createClass({
 
   render: function render() {
 
-    return React.createElement('div', { className: 'col-sm-12 col-md-12 main' }, React.createElement('form', { id: 'connection-form', role: 'form', className: 'col-md-6 col-md-offset-3', action: '/connections/' + (this.props.connection._id || "new"), method: 'post' }, React.createElement('fieldset', null, React.createElement('legend', null, 'Connection'), React.createElement('div', { className: 'form-group' }, React.createElement('label', { className: 'control-label', htmlFor: 'name' }, 'Friendly Connection Name'), React.createElement('input', { id: 'name', name: 'name', defaultValue: this.props.connection.name || '', type: 'text', placeholder: '', className: 'form-control input-md' })), React.createElement('div', { className: 'form-group' }, React.createElement('label', { className: ' control-label', htmlFor: 'driver' }, 'Database Driver'), React.createElement('div', { className: '' }, React.createElement('select', { id: 'driver', name: 'driver', className: 'form-control', defaultValue: this.props.connection.driver }, React.createElement('option', { value: 'mysql' }, 'MySQL'), React.createElement('option', { value: 'postgres' }, 'Postgres'), React.createElement('option', { value: 'sqlserver' }, 'SQL Server'), React.createElement('option', { value: 'vertica' }, 'Vertica'), React.createElement('option', { value: 'crate' }, 'Crate')))), React.createElement('div', { className: 'form-group' }, React.createElement('label', { className: ' control-label', htmlFor: 'host' }, 'Host/Server/IP Address'), React.createElement('div', { className: '' }, React.createElement('input', { id: 'host', name: 'host', defaultValue: this.props.connection.host || '', type: 'text', className: 'form-control input-md', required: '' }))), React.createElement('div', { className: 'form-group' }, React.createElement('label', { className: ' control-label', htmlFor: 'port' }, 'Port (optional)'), React.createElement('div', { className: '' }, React.createElement('input', { id: 'port', name: 'port', defaultValue: this.props.connection.port || '', type: 'text', className: 'form-control input-md' }))), React.createElement('div', { className: 'form-group driver-specific mysql postgres sqlserver vertica' }, React.createElement('label', { className: ' control-label', htmlFor: 'database' }, 'Database Name'), React.createElement('div', { className: '' }, React.createElement('input', { id: 'database', name: 'database', defaultValue: this.props.connection.database || '', type: 'text', className: 'form-control input-md', required: '' }))), React.createElement('div', { className: 'form-group driver-specific mysql postgres sqlserver vertica' }, React.createElement('label', { className: ' control-label', htmlFor: 'username' }, 'Database Username'), React.createElement('input', { id: 'username', name: 'username', defaultValue: this.props.connection.username || '', type: 'text', className: 'form-control input-md' })), React.createElement('div', { className: 'form-group driver-specific mysql postgres sqlserver vertica' }, React.createElement('label', { className: ' control-label', htmlFor: 'password' }, 'Password'), React.createElement('input', { id: 'password', name: 'password', defaultValue: this.props.connection.password || '', type: 'password', className: 'form-control input-md' })), React.createElement('div', { className: 'checkbox driver-specific sqlserver' }, React.createElement('label', null, React.createElement('input', { name: 'sqlserverEncrypt', checked: this.props.connection.sqlserverEncrypt ? "checked" : "", type: 'checkbox' }), ' Encrypt (necessary for Azure)')), React.createElement('div', { className: 'checkbox driver-specific postgres' }, React.createElement('label', null, React.createElement('input', { name: 'postgresSsl', checked: this.props.connection.postgresSsl ? "checked" : "", type: 'checkbox' }), ' Use SSL')), React.createElement('div', { className: 'checkbox driver-specific mysql' }, React.createElement('label', null, React.createElement('input', { name: 'mysqlInsecureAuth', checked: this.props.connection.mysqlInsecureAuth ? "checked" : "", type: 'checkbox' }), ' Use old/insecure pre 4.1 Auth System')), this.props.connection._id ? React.createElement('input', { type: 'hidden', name: '_method', value: 'put' }) : "", React.createElement('div', { className: 'form-group' }, React.createElement('label', { className: ' control-label', htmlFor: 'btnTest' }), React.createElement('div', { className: '' }, React.createElement('button', { id: 'btn-Save-connection', name: 'btnSave', className: 'btn btn-primary', type: 'submit' }, 'Save'), React.createElement('button', { id: 'btn-test-connection', name: 'btnTest', className: 'btn btn-inverse', type: 'submit' }, 'Test Connection'), React.createElement('span', { id: 'test-connection-result', className: 'label label-default' }))))));
+    return React.createElement(
+      'div',
+      { className: 'col-sm-12 col-md-12 main' },
+      React.createElement(
+        'form',
+        { id: 'connection-form', role: 'form', className: 'col-md-6 col-md-offset-3', action: '/connections/' + (this.props.connection._id || "new"), method: 'post' },
+        React.createElement(
+          'fieldset',
+          null,
+          React.createElement(
+            'legend',
+            null,
+            'Connection'
+          ),
+          React.createElement(
+            'div',
+            { className: 'form-group' },
+            React.createElement(
+              'label',
+              { className: 'control-label', htmlFor: 'name' },
+              'Friendly Connection Name'
+            ),
+            React.createElement('input', { id: 'name', name: 'name', defaultValue: this.props.connection.name || '', type: 'text', placeholder: '', className: 'form-control input-md' })
+          ),
+          React.createElement(
+            'div',
+            { className: 'form-group' },
+            React.createElement(
+              'label',
+              { className: ' control-label', htmlFor: 'driver' },
+              'Database Driver'
+            ),
+            React.createElement(
+              'div',
+              { className: '' },
+              React.createElement(
+                'select',
+                { id: 'driver', name: 'driver', className: 'form-control', defaultValue: this.props.connection.driver },
+                React.createElement(
+                  'option',
+                  { value: 'mysql' },
+                  'MySQL'
+                ),
+                React.createElement(
+                  'option',
+                  { value: 'postgres' },
+                  'Postgres'
+                ),
+                React.createElement(
+                  'option',
+                  { value: 'sqlserver' },
+                  'SQL Server'
+                ),
+                React.createElement(
+                  'option',
+                  { value: 'vertica' },
+                  'Vertica'
+                ),
+                React.createElement(
+                  'option',
+                  { value: 'crate' },
+                  'Crate'
+                )
+              )
+            )
+          ),
+          React.createElement(
+            'div',
+            { className: 'form-group' },
+            React.createElement(
+              'label',
+              { className: ' control-label', htmlFor: 'host' },
+              'Host/Server/IP Address'
+            ),
+            React.createElement(
+              'div',
+              { className: '' },
+              React.createElement('input', { id: 'host', name: 'host', defaultValue: this.props.connection.host || '', type: 'text', className: 'form-control input-md', required: '' })
+            )
+          ),
+          React.createElement(
+            'div',
+            { className: 'form-group' },
+            React.createElement(
+              'label',
+              { className: ' control-label', htmlFor: 'port' },
+              'Port (optional)'
+            ),
+            React.createElement(
+              'div',
+              { className: '' },
+              React.createElement('input', { id: 'port', name: 'port', defaultValue: this.props.connection.port || '', type: 'text', className: 'form-control input-md' })
+            )
+          ),
+          React.createElement(
+            'div',
+            { className: 'form-group driver-specific mysql postgres sqlserver vertica' },
+            React.createElement(
+              'label',
+              { className: ' control-label', htmlFor: 'database' },
+              'Database Name'
+            ),
+            React.createElement(
+              'div',
+              { className: '' },
+              React.createElement('input', { id: 'database', name: 'database', defaultValue: this.props.connection.database || '', type: 'text', className: 'form-control input-md', required: '' })
+            )
+          ),
+          React.createElement(
+            'div',
+            { className: 'form-group driver-specific mysql postgres sqlserver vertica' },
+            React.createElement(
+              'label',
+              { className: ' control-label', htmlFor: 'username' },
+              'Database Username'
+            ),
+            React.createElement('input', { id: 'username', name: 'username', defaultValue: this.props.connection.username || '', type: 'text', className: 'form-control input-md' })
+          ),
+          React.createElement(
+            'div',
+            { className: 'form-group driver-specific mysql postgres sqlserver vertica' },
+            React.createElement(
+              'label',
+              { className: ' control-label', htmlFor: 'password' },
+              'Password'
+            ),
+            React.createElement('input', { id: 'password', name: 'password', defaultValue: this.props.connection.password || '', type: 'password', className: 'form-control input-md' })
+          ),
+          React.createElement(
+            'div',
+            { className: 'checkbox driver-specific sqlserver' },
+            React.createElement(
+              'label',
+              null,
+              React.createElement('input', { name: 'sqlserverEncrypt', checked: this.props.connection.sqlserverEncrypt ? "checked" : "", type: 'checkbox' }),
+              ' Encrypt (necessary for Azure)'
+            )
+          ),
+          React.createElement(
+            'div',
+            { className: 'checkbox driver-specific postgres' },
+            React.createElement(
+              'label',
+              null,
+              React.createElement('input', { name: 'postgresSsl', checked: this.props.connection.postgresSsl ? "checked" : "", type: 'checkbox' }),
+              ' Use SSL'
+            )
+          ),
+          React.createElement(
+            'div',
+            { className: 'checkbox driver-specific mysql' },
+            React.createElement(
+              'label',
+              null,
+              React.createElement('input', { name: 'mysqlInsecureAuth', checked: this.props.connection.mysqlInsecureAuth ? "checked" : "", type: 'checkbox' }),
+              ' Use old/insecure pre 4.1 Auth System'
+            )
+          ),
+          this.props.connection._id ? React.createElement('input', { type: 'hidden', name: '_method', value: 'put' }) : "",
+          React.createElement(
+            'div',
+            { className: 'form-group' },
+            React.createElement('label', { className: ' control-label', htmlFor: 'btnTest' }),
+            React.createElement(
+              'div',
+              { className: '' },
+              React.createElement(
+                'button',
+                { id: 'btn-Save-connection', name: 'btnSave', className: 'btn btn-primary', type: 'submit' },
+                'Save'
+              ),
+              React.createElement(
+                'button',
+                { id: 'btn-test-connection', name: 'btnTest', className: 'btn btn-inverse', type: 'submit' },
+                'Test Connection'
+              ),
+              React.createElement('span', { id: 'test-connection-result', className: 'label label-default' })
+            )
+          )
+        )
+      )
+    );
   }
 
 });
 
-},{"moment":160,"react":528}],539:[function(require,module,exports){
+},{"moment":160,"react":528}],540:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -48488,7 +49108,7 @@ module.exports = React.createClass({
         );
     } });
 
-},{"moment":160,"react":528}],540:[function(require,module,exports){
+},{"moment":160,"react":528}],541:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -48509,11 +49129,12 @@ module.exports = React.createClass({
   }
 });
 
-},{"react":528}],541:[function(require,module,exports){
+},{"react":528}],542:[function(require,module,exports){
 
 'use strict';
 
 var React = require('react');
+var fetch = require("whatwg-fetch");
 var Navbar = require('react-bootstrap').Navbar;
 var Nav = require('react-bootstrap').Nav;
 var NavItem = require('react-bootstrap').NavItem;
@@ -48542,6 +49163,7 @@ module.exports = React.createClass({
         React.createElement('link', { rel: 'stylesheet', href: '/stylesheets/bootstrap-theme.min.css' }),
         React.createElement('link', { rel: 'stylesheet', href: '/stylesheets/vendor/codemirror/codemirror.css', type: 'text/css' }),
         React.createElement('link', { rel: 'stylesheet', href: '/stylesheets/vendor/codemirror/addon/hint/show-hint.css' }),
+        React.createElement('link', { rel: 'stylesheet', href: '/stylesheets/vendor/fontawesome/css/font-awesome.min.css', type: 'text/css' }),
         React.createElement('link', { rel: 'stylesheet', href: '/stylesheets/style.css' })
       ),
       React.createElement(
@@ -48631,6 +49253,8 @@ module.exports = React.createClass({
             this.props.children
           )
         ),
+        React.createElement('script', { src: '/javascripts/vendor/codemirror/codemirror.js', type: 'text/javascript' }),
+        React.createElement('script', { src: '/javascripts/vendor/codemirror/sql.js', type: 'text/javascript' }),
         React.createElement('script', { src: '/javascripts/browserified.js' }),
         React.createElement(
           'script',
@@ -48643,7 +49267,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"react":528,"react-bootstrap":255}],542:[function(require,module,exports){
+},{"react":528,"react-bootstrap":255,"whatwg-fetch":534}],543:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -48753,7 +49377,7 @@ module.exports = React.createClass({
         );
     } });
 
-},{"react":528}],543:[function(require,module,exports){
+},{"react":528}],544:[function(require,module,exports){
 'use strict';
 
 var _queriesTable = require('../views/queries-table.jsx');
@@ -48922,18 +49546,105 @@ module.exports = React.createClass({
     }
 });
 
-},{"../views/queries-table.jsx":542,"react":528}],544:[function(require,module,exports){
+},{"../views/queries-table.jsx":543,"react":528}],545:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
 var Nav = require('react-bootstrap').Nav;
 var NavItem = require('react-bootstrap').NavItem;
 
+var SqlEditor = require('./sqleditor.jsx');
+var SqlResults = require('./sqlresults.jsx');
+var SchemaInfo = require('./schemainfo.jsx');
+
+require("whatwg-fetch");
+
 module.exports = React.createClass({
     displayName: 'Query',
 
+    getInitialState: function getInitialState() {
+        return {
+            records: [],
+            schematree: {},
+            columns: {},
+            connectionId: "",
+            queryText: this.props.query ? this.props.query.queryText : ""
+        };
+    },
+
+    fetchSchemaTree: function fetchSchemaTree() {
+
+        if (this.state.connectionId) {
+            //  var params = {
+            //     reload: typeof reload != 'undefined' ? reload : false
+            // };
+            var self = this;
+            fetch("/schema-info/" + this.state.connectionId, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    reload: true,
+                    connectionId: this.state.connectionId })
+
+            }).then(function (response) {
+                return response.json();
+            }).then(function (json) {
+                self.setState({ schematree: json });
+            });
+        } else {
+
+            this.setState({ schematree: [] });
+        }
+    },
+
+    fetchQuery: function fetchQuery() {
+
+        var self = this;
+
+        fetch('/run-query', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                queryText: this.state.queryText,
+                connectionId: this.state.connectionId,
+                cacheKey: "",
+                queryName: "" })
+        }).then(function (response) {
+            return response.json();
+        }).then(function (json) {
+            self.setState({ columns: json.meta, records: json.results });
+        }).catch(function (ex) {
+            console.log('parsing failed', ex);
+        });
+    },
+
+    handleConnectionIdChange: function handleConnectionIdChange(event) {
+
+        this.setState({ connectionId: event.target.value }, function () {
+
+            this.fetchSchemaTree();
+        });
+    },
+
+    handleQueryTextChange: function handleQueryTextChange(val) {
+
+        this.setState({ queryText: val });
+    },
+
+    handleClickRunQuery: function handleClickRunQuery(event) {
+
+        event.preventDefault();
+
+        this.fetchQuery();
+    },
+
     render: function render() {
-        var _this = this;
 
         return React.createElement(
             'div',
@@ -49015,7 +49726,7 @@ module.exports = React.createClass({
                                     ),
                                     React.createElement(
                                         'select',
-                                        { id: 'connection', name: 'connection', className: 'form-control input-sm', defaultValue: this.props.query ? this.props.query.connection : "" },
+                                        { id: 'connection', onChange: this.handleConnectionIdChange, name: 'connection', className: 'form-control input-sm', defaultValue: this.props.query ? this.props.query.connection : "" },
                                         React.createElement(
                                             'option',
                                             { value: '' },
@@ -49032,7 +49743,7 @@ module.exports = React.createClass({
                                 ),
                                 React.createElement(
                                     'button',
-                                    { id: 'btn-run-query', className: 'btn btn-primary btn-sm btn-block' },
+                                    { id: 'btn-run-query', onClick: this.handleClickRunQuery, className: 'btn btn-primary btn-sm btn-block' },
                                     React.createElement(
                                         'span',
                                         { className: 'shortcut-letter' },
@@ -49064,84 +49775,25 @@ module.exports = React.createClass({
                                 )
                             ),
                             React.createElement('hr', null),
-                            React.createElement(
-                                'div',
-                                { id: 'panel-db-info-container' },
-                                React.createElement(
-                                    'button',
-                                    { id: 'btn-reload-schema', className: 'btn btn-default btn-sm', style: { display: "none" } },
-                                    React.createElement('span', { className: 'glyphicon glyphicon-refresh' })
-                                ),
-                                React.createElement('div', { id: 'panel-db-info' })
-                            )
+                            React.createElement(SchemaInfo, {
+                                schematree: this.state.schematree
+                            })
                         ),
                         React.createElement(
                             'div',
                             { className: 'tab-pane-main' },
-                            React.createElement(
-                                'div',
-                                { className: 'panel-editor' },
-                                React.createElement('textarea', { id: 'codemirror-editor', defaultValue: this.props.query ? this.props.query.queryText : "" || "" })
-                            ),
-                            React.createElement(
-                                'div',
-                                { id: 'panel-result' },
-                                React.createElement(
-                                    'div',
-                                    { id: 'panel-result-header' },
-                                    React.createElement(
-                                        'span',
-                                        { className: 'hide-while-running', style: { display: "none" } },
-                                        React.createElement(
-                                            'span',
-                                            { className: 'panel-result-header-label' },
-                                            'Query Run Time: '
-                                        ),
-                                        React.createElement('span', { className: 'panel-result-header-value', id: 'server-run-time' }),
-                                        React.createElement(
-                                            'span',
-                                            { className: 'panel-result-header-label' },
-                                            'Rows: '
-                                        ),
-                                        React.createElement('span', { className: 'panel-result-header-value', id: 'rowcount' }),
-                                        function () {
-
-                                            if (_this.props.allowDownload === true) {
-
-                                                return React.createElement(
-                                                    'span',
-                                                    null,
-                                                    React.createElement(
-                                                        'span',
-                                                        { className: 'panel-result-header-label' },
-                                                        'Download: '
-                                                    ),
-                                                    React.createElement(
-                                                        'a',
-                                                        { id: 'csv-download-link', className: 'result-download-link', href: '/download-results/' + _this.props.cacheKey + '.csv' },
-                                                        '.csv'
-                                                    ),
-                                                    React.createElement(
-                                                        'a',
-                                                        { id: 'xlsx-download-link', className: 'result-download-link', href: '/download-results/' + _this.props.cacheKey + '.xlsx' },
-                                                        '.xlsx'
-                                                    )
-                                                );
-                                            } else {
-
-                                                return "";
-                                            }
-                                        }(),
-                                        React.createElement(
-                                            'span',
-                                            { className: 'panel-result-header-label incomplete-notification hidden' },
-                                            'Incomplete Data (hit record limit)'
-                                        )
-                                    )
-                                ),
-                                React.createElement('div', { id: 'result-slick-grid' }),
-                                React.createElement('div', { id: 'run-result-notification' })
-                            )
+                            React.createElement(SqlEditor, {
+                                onChange: this.handleQueryTextChange,
+                                defaultValue: this.state.queryText,
+                                id: 'codemirror-editor'
+                            }),
+                            React.createElement(SqlResults, {
+                                queryText: this.state.queryText,
+                                connectionId: this.state.connectionId,
+                                records: this.state.records,
+                                columns: this.state.columns,
+                                allowDownload: this.props.allowDownload
+                            })
                         )
                     ),
                     React.createElement(
@@ -49206,7 +49858,110 @@ module.exports = React.createClass({
         );
     } });
 
-},{"react":528,"react-bootstrap":255}],545:[function(require,module,exports){
+},{"./schemainfo.jsx":546,"./sqleditor.jsx":549,"./sqlresults.jsx":550,"react":528,"react-bootstrap":255,"whatwg-fetch":534}],546:[function(require,module,exports){
+'use strict';
+
+var React = require('react');
+
+module.exports = React.createClass({
+
+    displayName: 'Schema Info',
+
+    propTypes: {
+        schematree: React.PropTypes.object
+    },
+
+    render: function render() {
+
+        var tableType,
+            self = this;
+
+        return React.createElement(
+            'div',
+            { id: 'panel-db-info-container' },
+            React.createElement(
+                'button',
+                { id: 'btn-reload-schema', className: 'btn btn-default btn-sm' },
+                React.createElement('span', { className: 'glyphicon glyphicon-refresh' })
+            ),
+            React.createElement(
+                'div',
+                { id: 'panel-db-info' },
+                React.createElement(
+                    'ul',
+                    { className: 'schema-info' },
+                    Object.keys(self.props.schematree).map(function (tableType) {
+
+                        return React.createElement(
+                            'li',
+                            { className: 'open' },
+                            React.createElement(
+                                'a',
+                                { className: 'schema-info-' + (tableType + '').toLowerCase() },
+                                tableType
+                            ),
+                            React.createElement(
+                                'ul',
+                                null,
+                                Object.keys(self.props.schematree[tableType]).map(function (schema) {
+                                    return React.createElement(
+                                        'li',
+                                        { className: 'open' },
+                                        React.createElement(
+                                            'a',
+                                            { className: 'schema-info-schema' },
+                                            schema
+                                        ),
+                                        React.createElement(
+                                            'ul',
+                                            null,
+                                            Object.keys(self.props.schematree[tableType][schema]).map(function (tableName) {
+                                                return React.createElement(
+                                                    'li',
+                                                    null,
+                                                    React.createElement(
+                                                        'a',
+                                                        { className: 'schema-info-table', 'data-full-name': schema + "." + tableName },
+                                                        tableName
+                                                    ),
+                                                    React.createElement(
+                                                        'ul',
+                                                        { 'class': 'hidden' },
+                                                        self.props.schematree[tableType][schema][tableName].map(function (column) {
+                                                            return React.createElement(
+                                                                'li',
+                                                                null,
+                                                                React.createElement(
+                                                                    'span',
+                                                                    { className: 'schema-info-column', 'data-full-name': schema + "." + tableName + "." + column.column_name },
+                                                                    column.column_name,
+                                                                    React.createElement(
+                                                                        'span',
+                                                                        { 'class': 'data-type' },
+                                                                        '(',
+                                                                        column.data_type,
+                                                                        ')'
+                                                                    )
+                                                                )
+                                                            );
+                                                        })
+                                                    )
+                                                );
+                                            })
+                                        )
+                                    );
+                                })
+                            )
+                        );
+                    })
+                )
+            )
+        );
+    }
+
+});
+
+},{"react":528}],547:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -49271,7 +50026,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"react":528}],546:[function(require,module,exports){
+},{"react":528}],548:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -49354,7 +50109,257 @@ module.exports = React.createClass({
         );
     } });
 
-},{"react":528}],547:[function(require,module,exports){
+},{"react":528}],549:[function(require,module,exports){
+(function (global){
+'use strict';
+
+var React = require('react');
+var CodeMirror;
+
+module.exports = React.createClass({
+  displayName: 'exports',
+
+
+  propTypes: {
+    id: React.PropTypes.string,
+    defaultValue: React.PropTypes.string,
+    value: React.PropTypes.string,
+    onChange: React.PropTypes.func
+  },
+
+  getInitialState: function getInitialState() {
+    return {
+      isFocused: false
+    };
+  },
+
+
+  componentDidMount: function componentDidMount() {
+    CodeMirror = (typeof window !== "undefined" ? window['CodeMirror'] : typeof global !== "undefined" ? global['CodeMirror'] : null);
+    var editor = this.refs.editor;
+    if (!editor.getAttribute) editor = editor.getDOMNode();
+    this.editor = CodeMirror.fromTextArea(editor, { mode: "text/x-sql",
+      indentWithTabs: true,
+      smartIndent: true,
+      lineNumbers: true,
+      matchBrackets: true,
+      autofocus: true,
+      extraKeys: { "Ctrl-Space": "autocomplete" } });
+
+    this.editor.on('change', this.codemirrorValueChanged);
+    this.editor.setValue(this.props.defaultValue || this.props.value || '');
+  },
+
+  codemirrorValueChanged: function codemirrorValueChanged(doc, change) {
+    if (this.props.onChange && change.origin != 'setValue') {
+      this.props.onChange(doc.getValue());
+    }
+  },
+
+
+  componentDidUpdate: function componentDidUpdate() {
+    if (this.editor) {
+      if (this.props.value != null) {
+        if (this.editor.getValue() !== this.props.value) {
+          this.editor.setValue(this.props.value);
+        }
+      }
+    }
+  },
+
+  render: function render() {
+
+    var editor = React.createElement('textarea', {
+      id: this.props.id,
+      ref: 'editor',
+      value: this.props.defaultValue
+    });
+
+    return React.createElement('div', { "className": "panel-editor" }, editor);
+  }
+
+});
+/*
+module.exports = React.createClass({
+
+  // getInitialState: function() {
+  //   return { isControlled: this.props.value != null };
+  // },
+
+  propTypes: {
+    value: React.PropTypes.string,
+    defaultValue: React.PropTypes.string
+  },
+
+  componentDidMount: function() {
+    var isTextArea = this.props.forceTextArea || IS_MOBILE;
+    if (!isTextArea) {
+      var editor = this.refs.editor;
+      if (!editor.getAttribute) editor = editor.getDOMNode();
+      this.editor = CodeMirror.fromTextArea(editor, this.props);
+      this.editor.on('change', this.handleChange);
+    }
+  },
+
+  componentDidUpdate: function() {
+    if (this.editor) {
+      if (this.props.value != null) {
+        if (this.editor.getValue() !== this.props.value) {
+          this.editor.setValue(this.props.value);
+        }
+      }
+    }
+  },
+  render: function() {
+
+    var editor = React.createElement('textarea', {
+      ref: 'editor',
+      value: this.props.value
+    });
+
+    return React.createElement('div', {style: this.props.style, className: this.props.className}, editor);
+  }
+});
+
+module.exports = CodeMirrorEditor;*/
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"react":528}],550:[function(require,module,exports){
+'use strict';
+
+var React = require('react');
+
+module.exports = React.createClass({
+
+    displayName: 'SQL Results',
+
+    propTypes: {
+        columns: React.PropTypes.object,
+        records: React.PropTypes.array
+    },
+
+    shouldComponentUpdate: function shouldComponentUpdate() {
+        return true;
+    },
+
+    render: function render() {
+        var _this = this;
+
+        var cols = [];
+
+        if (this.props.columns) {
+
+            cols = Object.keys(this.props.columns).map(function (col) {
+
+                return { key: col };
+            });
+        }
+
+        return React.createElement(
+            'div',
+            { id: 'panel-result' },
+            React.createElement(
+                'div',
+                { id: 'panel-result-header' },
+                React.createElement(
+                    'span',
+                    { className: 'hide-while-running', style: { display: "none" } },
+                    React.createElement(
+                        'span',
+                        { className: 'panel-result-header-label' },
+                        'Query Run Time: '
+                    ),
+                    React.createElement('span', { className: 'panel-result-header-value', id: 'server-run-time' }),
+                    React.createElement(
+                        'span',
+                        { className: 'panel-result-header-label' },
+                        'Rows: '
+                    ),
+                    React.createElement('span', { className: 'panel-result-header-value', id: 'rowcount' }),
+                    function () {
+
+                        if (_this.props.allowDownload === true) {
+
+                            return React.createElement(
+                                'span',
+                                null,
+                                React.createElement(
+                                    'span',
+                                    { className: 'panel-result-header-label' },
+                                    'Download: '
+                                ),
+                                React.createElement(
+                                    'a',
+                                    { id: 'csv-download-link', className: 'result-download-link', href: '/download-results/' + _this.props.cacheKey + '.csv' },
+                                    '.csv'
+                                ),
+                                React.createElement(
+                                    'a',
+                                    { id: 'xlsx-download-link', className: 'result-download-link', href: '/download-results/' + _this.props.cacheKey + '.xlsx' },
+                                    '.xlsx'
+                                )
+                            );
+                        } else {
+
+                            return "";
+                        }
+                    }(),
+                    React.createElement(
+                        'span',
+                        { className: 'panel-result-header-label incomplete-notification hidden' },
+                        'Incomplete Data (hit record limit)'
+                    )
+                )
+            ),
+            React.createElement(
+                'div',
+                { id: 'result-slick-grid' },
+                React.createElement(
+                    'table',
+                    { className: 'table table-striped table-condensed' },
+                    React.createElement(
+                        'thead',
+                        null,
+                        React.createElement(
+                            'tr',
+                            null,
+                            cols.map(function (col) {
+                                return React.createElement(
+                                    'th',
+                                    null,
+                                    col.key
+                                );
+                            })
+                        )
+                    ),
+                    React.createElement(
+                        'tbody',
+                        null,
+                        this.props.records ? this.props.records.map(function (record) {
+
+                            return React.createElement(
+                                'tr',
+                                null,
+                                ' ',
+                                cols.map(function (col) {
+
+                                    return React.createElement(
+                                        'td',
+                                        null,
+                                        record[col.key]
+                                    );
+                                }),
+                                ' '
+                            );
+                        }) : null
+                    )
+                )
+            ),
+            React.createElement('div', { id: 'run-result-notification' })
+        );
+    } });
+
+},{"react":528}],551:[function(require,module,exports){
 'use strict';
 
 var React = require('react');

@@ -7,6 +7,7 @@ var path = require('path');
 var updateNotifier = require('update-notifier');
 var packageJson = require('./package.json');
 var app = express();
+var react = require('react');
 var reactEngine = require('react-engine');
 var browserify = require('browserify');
 var watchify = require('watchify');
@@ -148,16 +149,16 @@ app.use(function (req, res, next) {
 });
 app.use(function (req, res, next) {
     // if not signed in redirect to sign in page
-    if (req.isAuthenticated()) {
+   // if (req.isAuthenticated()) {
         next();
-    } else if (req._parsedUrl.pathname === config.baseUrl + '/signin' || req._parsedUrl.pathname === config.baseUrl + '/signup' || req._parsedUrl.pathname.indexOf(config.baseUrl + '/auth/') == 0) {
+    /*} else if (req._parsedUrl.pathname === config.baseUrl + '/signin' || req._parsedUrl.pathname === config.baseUrl + '/signup' || req._parsedUrl.pathname.indexOf(config.baseUrl + '/auth/') == 0) {
         next();
     } else if (app.get('openRegistration')) {
         // if there are no users whitelisted, direct to signup
         res.redirect(config.baseUrl + '/signup');
     } else {
         res.redirect(config.baseUrl + '/signin');
-    }
+    }*/
 });
 
 
@@ -223,13 +224,24 @@ if ( config.engine === 'react' ) {
         entries: ['./client-js/main-react.js'],
         cache: {},
         packageCache: {},
-        plugin: [watchify]
-
+        plugin: [watchify]/*,
+        bundleExternal: false,
+        "browserify-shim":{"codemirror": "global:codemirror"},
+        libs: {
+            options: {
+              shim: {
+                 "codemirror": {
+                    path: './node_modules/codemirror/lib/codemirror.js',
+                    exports: 'global:codemirror'
+                }
+            }
+        }
+    }*/
     });
 
     b.on('update', function(){
         
-        b.transform("babelify", {presets: ["es2015", "react"]}).bundle().on("error",function(err){ 
+        b.transform("babelify",{presets: ['es2015', 'react']}).bundle().on("error",function(err){ 
             // print the error (can replace with gulp-util)
             console.log(err);
             // end this stream
@@ -238,7 +250,9 @@ if ( config.engine === 'react' ) {
 
     });
 
-    b.transform("babelify", {presets: ["es2015", "react"]}).bundle().on("error",function(err){ 
+    b.transform("babelify",{
+  presets: ['es2015', 'react']
+}).bundle().on("error",function(err){ 
         // print the error (can replace with gulp-util)
         console.log(err);
         // end this stream
