@@ -9,7 +9,8 @@ module.exports = React.createClass({
       id: React.PropTypes.string,
       defaultValue: React.PropTypes.string,
       value: React.PropTypes.string,
-      onChange: React.PropTypes.func
+      onChange: React.PropTypes.func,
+      schematree: React.PropTypes.object
     },
 
     getInitialState () {
@@ -42,13 +43,33 @@ module.exports = React.createClass({
     },
 
     componentDidUpdate: function() {
+
       if (this.editor) {
         if (this.props.value != null) {
           if (this.editor.getValue() !== this.props.value) {
             this.editor.setValue(this.props.value);
           }
         }
+        //console.log(this.props.schematree);
+        if ( this.props.schematree ) {
+          var hintoptions = {"tables":{}}, tree = this.props.schematree;
+          if ( tree.Tables && tree.Tables.dbo ) {
+              for ( var t in tree.Tables.dbo) {
+                  hintoptions.tables[t] = {"columns":{}};
+                  for ( var c=0, clen = tree.Tables.dbo[t].length; c < clen; c++ ) {
+                      hintoptions.tables[t]["columns"][tree.Tables.dbo[t][c].column_name] = {
+                          "text":tree.Tables.dbo[t][c].column_name,
+                          "displayText":tree.Tables.dbo[t][c].column_name+" "+tree.Tables.dbo[t][c].data_type+" "+((tree.Tables.dbo[t][c].is_nullable==="NO")?"NOT NULL":"NULL")+""
+                      };
+                  }
+              }
+          }
+          //console.log(hintoptions);
+          this.editor.setOption("hintOptions",hintoptions);
+        }
       }
+
+
     },
 
     render : function() {

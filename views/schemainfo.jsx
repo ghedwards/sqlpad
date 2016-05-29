@@ -1,6 +1,9 @@
 'use strict';
 
-var React = require('react');
+import React from 'react';
+import JSONTree from 'react-json-tree'
+// If you're using Immutable.js: `npm i --save immutable`
+//import { Map } from 'immutable'
 
 module.exports = React.createClass({
 
@@ -22,43 +25,8 @@ module.exports = React.createClass({
 
             <div id="panel-db-info">
 
-                <ul className="schema-info">
+                <JSONTree data={this.props.schematree} />
 
-                    {Object.keys(self.props.schematree).map(function(tableType) {
-
-                        return <li className="open">
-                            <a className={'schema-info-'+(tableType+'').toLowerCase()}>{tableType}</a>
-                            <ul>
-                                {Object.keys(self.props.schematree[tableType]).map(function(schema){
-                                    return <li className="open">
-                                        <a className="schema-info-schema">{schema}</a>
-                                        <ul>
-                                            {Object.keys(self.props.schematree[tableType][schema]).map(function(tableName){
-                                                return <li>
-                                                    <a className="schema-info-table" data-full-name={schema + "." + tableName}>{tableName}</a>
-                                                    <ul class="hidden">
-                                                        {self.props.schematree[tableType][schema][tableName].map(function(column){
-                                                            return <li>
-                                                                <span className="schema-info-column" data-full-name={schema + "." + tableName + "." + column.column_name}>
-                                                                    {column.column_name} 
-                                                                    <span class="data-type">({column.data_type})</span>
-                                                                </span>
-                                                            </li>
-                                                        })}
-                                                    </ul>
-                                                </li>
-                                            })}
-                                        </ul>
-                                    </li>
-                                })}
-                               
-                            </ul>
-                        </li>
-
-                    })}
-
-                </ul>
-            
             </div>
 
         </div>

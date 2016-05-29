@@ -186,6 +186,7 @@ module.exports = React.createClass({
                     <SqlEditor 
                         onChange={this.handleQueryTextChange} 
                         defaultValue={this.state.queryText} 
+                        schematree={this.state.schematree}
                         id="codemirror-editor"
                     />
                     

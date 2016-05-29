@@ -116,6 +116,10 @@ module.exports = React.createClass({
 
           <script src="/javascripts/vendor/codemirror/codemirror.js" type="text/javascript"></script>
           <script src="/javascripts/vendor/codemirror/sql.js" type="text/javascript"></script>
+
+          <script src="/javascripts/vendor/codemirror/addon/hint/show-hint.js" type="text/javascript"></script>
+          <script src="/javascripts/vendor/codemirror/addon/hint/sql-hint.js" type="text/javascript"></script>
+
           <script src="/javascripts/browserified.js"></script>
 
           <script>

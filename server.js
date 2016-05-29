@@ -63,6 +63,7 @@ var passport = require('passport');
 var connectFlash = require('connect-flash');
 var errorhandler = require('errorhandler');
 var reactroutes;
+var serverstarted = false;
 
 app.locals.title = 'SqlPad';
 app.locals.version = packageJson.version;
@@ -230,11 +231,11 @@ if ( config.engine === 'react' ) {
         libs: {
             options: {
               shim: {
-                 "codemirror": {
-                    path: './node_modules/codemirror/lib/codemirror.js',
-                    exports: 'global:codemirror'
-                }
+            "codemirror": {
+                path: './node_modules/codemirror/lib/codemirror.js',
+                exports: 'global:codemirror'
             }
+        }
         }
     }*/
     });
@@ -250,13 +251,31 @@ if ( config.engine === 'react' ) {
 
     });
 
+    b.on('bundle',function(){
+
+        if ( serverstarted !== true ) {
+         
+            serverstarted = true;
+
+            http.createServer(app).listen(app.get('port'), app.get('ip'), function(){
+                console.log('\nWelcome to ' + app.locals.title + '!. Visit http://'+(app.get('ip') == '0.0.0.0' ? 'localhost' : app.get('ip')) + ':' + app.get('port') + app.get('baseUrl') + ' to get started');
+            });
+        
+        }
+
+    });
+
     b.transform("babelify",{
-  presets: ['es2015', 'react']
-}).bundle().on("error",function(err){ 
+    
+        presets: ['es2015', 'react']
+
+    }).bundle().on("error",function(err){ 
+    
         // print the error (can replace with gulp-util)
         console.log(err);
         // end this stream
-        //this.emit('end');
+        this.emit('end');
+        
     }).pipe(fs.createWriteStream('./public/javascripts/browserified.js'));
     
     //app.use(config.baseUrl, router);
@@ -265,8 +284,11 @@ if ( config.engine === 'react' ) {
 
     app.use(config.baseUrl, router);
 
+    serverstarted = true;
+
+    http.createServer(app).listen(app.get('port'), app.get('ip'), function(){
+        console.log('\nWelcome to ' + app.locals.title + '!. Visit http://'+(app.get('ip') == '0.0.0.0' ? 'localhost' : app.get('ip')) + ':' + app.get('port') + app.get('baseUrl') + ' to get started');
+    });
+
 }
 
-http.createServer(app).listen(app.get('port'), app.get('ip'), function(){
-    console.log('\nWelcome to ' + app.locals.title + '!. Visit http://'+(app.get('ip') == '0.0.0.0' ? 'localhost' : app.get('ip')) + ':' + app.get('port') + app.get('baseUrl') + ' to get started');
-});
